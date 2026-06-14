@@ -385,7 +385,7 @@ function postToSheets(fid, record) {
     'formName='+encodeURIComponent(TITLES[fid]||''),
     'record='+encodeURIComponent(JSON.stringify(record))
   ].join('&');
-  try { fetch(url+'?'+params, {method:'GET', mode:'no-cors'}); } catch(e) {}
+  try { var _img = new Image(); _img.src = url+'?'+params; } catch(e) {}
 }
 
 function clearDraft() {
