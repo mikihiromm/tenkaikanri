@@ -288,7 +288,7 @@ function updateSheetsIndicator() {
   }
 }
 
-var APPS_SCRIPT_CODE = 'function doPost(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = ss.getSheetByName("記録") || ss.insertSheet("記録");\n    if (sheet.getLastRow() === 0) {\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,9).setFontWeight("bold");\n    }\n    var data = JSON.parse(e.postData.contents);\n    var rec = data.record || {};\n    var checker = rec["f"+data.formId+"_checker"] || rec["f"+data.formId+"_recorder"] || rec["f"+data.formId+"_reporter"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(v); }\n      else if (v && ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済"].indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), data.date, data.formId, data.formName, checker, okCount, ngCount, ngItems.join("/"), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
+var APPS_SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = ss.getSheetByName("記録") || ss.insertSheet("記録");\n    if (sheet.getLastRow() === 0) {\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,9).setFontWeight("bold");\n    }\n    var date = e.parameter.date || "";\n    var formId = e.parameter.formId || "";\n    var formName = e.parameter.formName || "";\n    var rec = JSON.parse(e.parameter.record || "{}");\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(v); }\n      else if (v && ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済"].indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), date, formId, formName, checker, okCount, ngCount, ngItems.join("/"), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
 
 function copyScript() {
   var code = APPS_SCRIPT_CODE.replace(/\\n/g, '\n');
@@ -379,8 +379,13 @@ function saveRecord() {
 
 function postToSheets(fid, record) {
   var url = SETTINGS.scriptUrl; if (!url) return;
-  var data = {date:today(), formId:fid, formName:TITLES[fid], record:record, savedAt:new Date().toISOString()};
-  try { fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify(data)}); } catch(e) {}
+  var params = [
+    'date='+encodeURIComponent(today()),
+    'formId='+encodeURIComponent(fid),
+    'formName='+encodeURIComponent(TITLES[fid]||''),
+    'record='+encodeURIComponent(JSON.stringify(record))
+  ].join('&');
+  try { fetch(url+'?'+params, {method:'GET', mode:'no-cors'}); } catch(e) {}
 }
 
 function clearDraft() {
