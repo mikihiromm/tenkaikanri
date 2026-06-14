@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>天海の城 管理表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#1a2744;--gold:#c8a951;--bg:#f0ede6;--card:#fff;
+  --green:#2e7d4f;--red:#c0392b;--orange:#d68910;
+  --text:#1a1a1a;--muted:#888;--border:#e0e0e0;
+  --radius:14px;--shadow:0 2px 12px rgba(0,0,0,.1)
+}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--text)}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+.home-header{background:var(--navy);padding:52px 20px 28px;text-align:center}
+.home-title{color:var(--gold);font-size:30px;font-weight:700;letter-spacing:3px}
+.home-sub{color:rgba(255,255,255,.6);font-size:13px;margin-top:5px}
+.home-grid{padding:18px 14px 40px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-card{background:var(--card);border-radius:var(--radius);padding:18px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;box-shadow:var(--shadow);cursor:pointer;transition:transform .12s;position:relative;min-height:130px;justify-content:center;border:2.5px solid transparent}
+.form-card:active{transform:scale(.96)}
+.form-card .card-num{position:absolute;top:9px;left:12px;font-size:11px;color:var(--muted);font-weight:700}
+.form-card .card-icon{font-size:32px}
+.form-card .card-title{font-size:12px;font-weight:600;text-align:center;line-height:1.5;color:var(--text)}
+.form-card .card-dot{position:absolute;top:9px;right:10px;width:10px;height:10px;border-radius:50%;background:var(--border)}
+.form-card.started .card-dot{background:var(--gold)}
+.form-card.started{border-color:var(--gold)}
+.form-header{background:var(--navy);padding:52px 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:99}
+.btn-back{background:rgba(255,255,255,.15);border:none;color:#fff;padding:9px 15px;border-radius:22px;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.fh-title{flex:1;color:#fff;font-size:14px;font-weight:700;line-height:1.3}
+.btn-print{background:rgba(255,255,255,.15);border:none;color:#fff;padding:9px 13px;border-radius:22px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-clear{background:rgba(200,60,60,.4);border:none;color:#fff;padding:9px 13px;border-radius:22px;font-size:13px;cursor:pointer;font-family:inherit}
+.form-body{padding:14px 14px 90px}
+.fcard{background:var(--card);border-radius:var(--radius);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.fcard-head{padding:11px 16px;font-size:12px;font-weight:700;letter-spacing:.5px}
+.h-def{background:#f5f5f5;color:#555}
+.h-safety{background:#e8f5e9;color:#1b5e20}
+.h-quality{background:#e3f2fd;color:#0d47a1}
+.h-facility{background:#fff3e0;color:#bf360c}
+.h-other{background:#f3e5f5;color:#4a148c}
+.h-security{background:#fce4ec;color:#880e4f}
+.h-art{background:#e0f2f1;color:#004d40}
+.h-nature{background:#f1f8e9;color:#33691e}
+.h-typhoon{background:#e8eaf6;color:#1a237e}
+.field-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f5f5f5}
+.field-row:last-child{border-bottom:none}
+.field-lbl{font-size:13px;color:var(--muted);min-width:82px;flex-shrink:0}
+.field-inp{flex:1;border:none;border-bottom:1.5px solid var(--border);font-size:15px;font-family:inherit;color:var(--text);background:transparent;outline:none;padding:3px 0;min-width:0}
+.field-inp:focus{border-bottom-color:var(--gold)}
+.today-btn{background:var(--gold);border:none;border-radius:10px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.check-item{padding:11px 16px;border-bottom:1px solid #f5f5f5}
+.check-item:last-child{border-bottom:none}
+.check-lbl{font-size:14px;line-height:1.5;margin-bottom:8px;color:var(--text)}
+.opts{display:flex;gap:7px;flex-wrap:wrap}
+.opt{padding:8px 18px;border-radius:22px;border:2px solid var(--border);background:#f8f8f8;font-size:14px;font-weight:600;cursor:pointer;transition:all .12s;min-height:40px;font-family:inherit}
+.opt:active{transform:scale(.94)}
+.opt.sel-ok{background:var(--green);border-color:var(--green);color:#fff}
+.opt.sel-ng{background:var(--red);border-color:var(--red);color:#fff}
+.opt.sel-warn{background:var(--orange);border-color:var(--orange);color:#fff}
+.note-lbl{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.note-ta{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:inherit;resize:vertical;min-height:72px;outline:none;color:var(--text)}
+.note-ta:focus{border-color:var(--gold)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:#f5f5f5;padding:7px 6px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted)}
+.tbl td{padding:7px 6px;border-bottom:1px solid #f5f5f5;text-align:center;vertical-align:middle}
+.tiny-inp{width:62px;border:1.5px solid var(--border);border-radius:8px;padding:4px;font-size:13px;text-align:center;font-family:inherit;outline:none}
+.tiny-inp:focus{border-color:var(--gold)}
+.save-bar{background:var(--navy);color:rgba(255,255,255,.65);text-align:center;padding:14px;font-size:12px;position:fixed;bottom:0;left:0;right:0;z-index:98}
+@media print{
+  .form-header,.save-bar{display:none!important}
+  #home-screen{display:none!important}
+  #form-screen{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<div id="home-screen" class="screen active">
+  <div class="home-header">
+    <div class="home-title">天海の城</div>
+    <div class="home-sub">日常運営管理表 — 研修・業務用アプリ</div>
+  </div>
+  <div class="home-grid">
+    <div class="form-card" id="card-1" onclick="openForm(1)"><span class="card-num">様式1</span><span class="card-icon">🌅</span><span class="card-title">毎日開館前点検表</span><span class="card-dot" id="dot-1"></span></div>
+    <div class="form-card" id="card-2" onclick="openForm(2)"><span class="card-num">様式2</span><span class="card-icon">🌙</span><span class="card-title">毎日閉館時点検表</span><span class="card-dot" id="dot-2"></span></div>
+    <div class="form-card" id="card-3" onclick="openForm(3)"><span class="card-num">様式3</span><span class="card-icon">🛏</span><span class="card-title">客室最終点検表</span><span class="card-dot" id="dot-3"></span></div>
+    <div class="form-card" id="card-4" onclick="openForm(4)"><span class="card-num">様式4</span><span class="card-icon">🎨</span><span class="card-title">美術館温湿度・展示品状態記録</span><span class="card-dot" id="dot-4"></span></div>
+    <div class="form-card" id="card-5" onclick="openForm(5)"><span class="card-num">様式5</span><span class="card-icon">🌿</span><span class="card-title">植物管理記録表</span><span class="card-dot" id="dot-5"></span></div>
+    <div class="form-card" id="card-6" onclick="openForm(6)"><span class="card-num">様式6</span><span class="card-icon">🔧</span><span class="card-title">修理申請・検収表</span><span class="card-dot" id="dot-6"></span></div>
+    <div class="form-card" id="card-7" onclick="openForm(7)"><span class="card-num">様式7</span><span class="card-icon">👤</span><span class="card-title">顧客接遇登録表</span><span class="card-dot" id="dot-7"></span></div>
+    <div class="form-card" id="card-8" onclick="openForm(8)"><span class="card-num">様式8</span><span class="card-icon">🎁</span><span class="card-title">無料接遇・割引承認表</span><span class="card-dot" id="dot-8"></span></div>
+    <div class="form-card" id="card-9" onclick="openForm(9)"><span class="card-num">様式9</span><span class="card-icon">🌀</span><span class="card-title">台風防災点検表</span><span class="card-dot" id="dot-9"></span></div>
+    <div class="form-card" id="card-10" onclick="openForm(10)"><span class="card-num">様式10</span><span class="card-icon">🚨</span><span class="card-title">事故・苦情・異常報告書</span><span class="card-dot" id="dot-10"></span></div>
+  </div>
+</div>
+
+<div id="form-screen" class="screen">
+  <div class="form-header">
+    <button class="btn-back" onclick="goHome()">← ホーム</button>
+    <div class="fh-title" id="fh-title"></div>
+    <button class="btn-print" onclick="window.print()">🖨 印刷</button>
+    <button class="btn-clear" onclick="clearForm()">🗑</button>
+  </div>
+  <div class="form-body" id="form-body"></div>
+  <div class="save-bar" id="save-bar">入力内容は自動保存されます</div>
+</div>
+
+<script>
+// --- State ---
+var ST = {};
+try { ST = JSON.parse(localStorage.getItem('tenkai_v3') || '{}'); } catch(e) {}
+
+function save() {
+  try { localStorage.setItem('tenkai_v3', JSON.stringify(ST)); } catch(e) {}
+  var bar = document.getElementById('save-bar');
+  if (bar) bar.textContent = '保存済み';
+}
+
+function gk(fid, fld) { return 'f' + fid + '_' + fld; }
+
+// --- Navigation ---
+var cFid = null;
+
+function goHome() {
+  document.getElementById('home-screen').classList.add('active');
+  document.getElementById('form-screen').classList.remove('active');
+  updateDots();
+}
+
+function openForm(id) {
+  cFid = id;
+  var titles = {1:'毎日開館前点検表',2:'毎日閉館時点検表',3:'客室最終点検表',4:'美術館温湿度・展示品状態記録',5:'植物管理記録表',6:'修理申請・検収表',7:'顧客接遇登録表',8:'無料接遇・割引承認表',9:'台風防災点検表',10:'事故・苦情・異常報告書'};
+  document.getElementById('home-screen').classList.remove('active');
+  document.getElementById('form-screen').classList.add('active');
+  document.getElementById('fh-title').textContent = '様式' + id + '　' + (titles[id] || '');
+  var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10];
+  document.getElementById('form-body').innerHTML = fns[id] ? fns[id](id) : '';
+  restoreForm(id);
+  window.scrollTo(0,0);
+}
+
+function clearForm() {
+  if (!confirm('この様式の入力内容をすべてクリアしますか？')) return;
+  var prefix = 'f' + cFid + '_';
+  var keys = Object.keys(ST);
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i].indexOf(prefix) === 0) delete ST[keys[i]];
+  }
+  save();
+  openForm(cFid);
+}
+
+// --- Colors ---
+var OK_W = ['正常','良好','完了','はい','なし','撮影済','確認済','揃っている','実施済','不要','可能','可','異常なし','範囲内','実施','あり得る'];
+var NG_W = ['異常','要改善','要対応','未完了','いいえ','あり','撮影不要','否認','補充必要','固定必要','是正後可能','必要','虫害あり','範囲外','未撮影','交換必要'];
+var WN_W = ['要修正','確認中','該当なし','変更','普通','別途確認'];
+
+function oc(v) {
+  var i;
+  for (i = 0; i < WN_W.length; i++) { if (WN_W[i] === v) return 'sel-warn'; }
+  for (i = 0; i < NG_W.length; i++) { if (NG_W[i] === v) return 'sel-ng'; }
+  return 'sel-ok';
+}
+
+// --- Button handlers ---
+function selectOpt(el) {
+  var key = el.getAttribute('data-key');
+  var val = el.getAttribute('data-val');
+  var btns = el.parentElement.querySelectorAll('.opt');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('sel-ok','sel-ng','sel-warn');
+  el.classList.add(oc(val));
+  ST[key] = val;
+  save();
+}
+
+function toggleOpt(el) {
+  var key = el.getAttribute('data-key');
+  var val = el.getAttribute('data-val');
+  if (ST[key]) { el.classList.remove('sel-ok','sel-ng','sel-warn'); delete ST[key]; }
+  else { el.classList.add('sel-ok'); ST[key] = val; }
+  save();
+}
+
+function onInp(el) { ST[el.getAttribute('data-key')] = el.value; save(); }
+
+function setToday(key) {
+  var d = new Date();
+  var s = d.getFullYear() + '-' + (d.getMonth()<9?'0':'') + (d.getMonth()+1) + '-' + (d.getDate()<10?'0':'') + d.getDate();
+  var el = document.querySelector('[data-key="' + key + '"]');
+  if (el) { el.value = s; ST[key] = s; save(); }
+}
+
+// --- Restore ---
+function restoreForm(id) {
+  var prefix = 'f' + id + '_';
+  var els = document.querySelectorAll('[data-key]');
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    var key = el.getAttribute('data-key');
+    if (key.indexOf(prefix) !== 0) continue;
+    var val = ST[key];
+    if (!val) continue;
+    var tn = el.tagName.toLowerCase();
+    if (tn === 'input' || tn === 'textarea') el.value = val;
+    else if (el.classList.contains('opt') && el.getAttribute('data-val') === val) el.classList.add(oc(val));
+  }
+}
+
+// --- Dots ---
+function isStarted(id) {
+  var prefix = 'f' + id + '_';
+  var keys = Object.keys(ST);
+  for (var i = 0; i < keys.length; i++) if (keys[i].indexOf(prefix) === 0) return true;
+  return false;
+}
+
+function updateDots() {
+  for (var i = 1; i <= 10; i++) {
+    var c = document.getElementById('card-' + i);
+    if (c) { if (isStarted(i)) c.classList.add('started'); else c.classList.remove('started'); }
+  }
+}
+
+// --- HTML builders ---
+function mkOpts(fid, id, opts, style) {
+  var key = gk(fid, id);
+  var h = '<div class="opts">';
+  for (var i = 0; i < opts.length; i++) {
+    h += '<button class="opt" data-key="' + key + '" data-val="' + opts[i] + '" onclick="selectOpt(this)"' + (style ? ' style="' + style + '"' : '') + '>' + opts[i] + '</button>';
+  }
+  return h + '</div>';
+}
+
+function mkTog(fid, id, val, style) {
+  return '<button class="opt" data-key="' + gk(fid,id+'_'+val) + '" data-val="' + val + '" onclick="toggleOpt(this)"' + (style ? ' style="' + style + '"' : '') + '>' + val + '</button>';
+}
+
+function mkFld(fid, id, label, type, ph) {
+  var key = gk(fid, id);
+  var inp;
+  if (type === 'date') inp = '<input class="field-inp" type="date" data-key="' + key + '" oninput="onInp(this)"><button class="today-btn" onclick="setToday(\'' + key + '\')">今日</button>';
+  else if (type === 'time') inp = '<input class="field-inp" type="time" data-key="' + key + '" oninput="onInp(this)">';
+  else inp = '<input class="field-inp" type="text" placeholder="' + (ph||'') + '" data-key="' + key + '" oninput="onInp(this)">';
+  return '<div class="field-row"><span class="field-lbl">' + label + '</span>' + inp + '</div>';
+}
+
+function mkTa(fid, id, label, rows) {
+  return '<div class="fcard" style="padding:14px 16px"><label class="note-lbl">' + label + '</label><textarea class="note-ta" rows="' + (rows||3) + '" data-key="' + gk(fid,id) + '" oninput="onInp(this)" placeholder="記入してください"></textarea></div>';
+}
+
+function mkSig(fid, sigs) {
+  var h = '<div class="fcard"><div class="fcard-head h-def">署名・確認</div>';
+  for (var i = 0; i < sigs.length; i++) {
+    h += '<div class="field-row"><span class="field-lbl">' + sigs[i] + '</span><input class="field-inp" type="text" data-key="' + gk(fid,'sig'+i) + '" oninput="onInp(this)" placeholder="署名"></div>';
+  }
+  return h + '</div>';
+}
+
+function mkSec(fid, label, cls, items) {
+  var h = '<div class="fcard"><div class="fcard-head ' + cls + '">' + label + '</div>';
+  for (var i = 0; i < items.length; i++) {
+    h += '<div class="check-item"><div class="check-lbl">' + items[i].t + '</div>' + mkOpts(fid, items[i].id, items[i].o) + '</div>';
+  }
+  return h + '</div>';
+}
+
+function mkHdr(fid, fields) {
+  var h = '<div class="fcard"><div class="fcard-head h-def">基本情報</div>';
+  for (var i = 0; i < fields.length; i++) h += mkFld(fid, fields[i][0], fields[i][1], fields[i][2], fields[i][3]);
+  return h + '</div>';
+}
+
+// ===== FORM 1 =====
+function form1(fid) {
+  var h = mkHdr(fid,[['date','日付','date'],['weather','天候','text','晴れ/曇り/雨'],['time','点検時間','time'],['checker','点検者','text'],['manager','当日責任者','text']]);
+  h += mkSec(fid,'🔒 安全','h-safety',[
+    {id:'q01',t:'正面玄関、裏口、通用口は正常か',o:['正常','異常']},
+    {id:'q02',t:'各区域の扉・窓は正常か',o:['正常','異常']},
+    {id:'q03',t:'厨房の火気、ガス、電源は正常か',o:['正常','異常']},
+    {id:'q04',t:'給湯設備は正常か',o:['正常','異常']},
+    {id:'q05',t:'漏水、漏電、異臭はないか',o:['なし','あり']},
+    {id:'q06',t:'消防通路は確保されているか',o:['はい','いいえ']},
+    {id:'q07',t:'浴場・浴室床面に滑りやすい箇所はないか',o:['正常','異常']}
+  ]);
+  h += mkSec(fid,'✨ 品質','h-quality',[
+    {id:'q08',t:'共用部の清掃状態',o:['良好','要改善']},
+    {id:'q09',t:'トイレの清掃および備品',o:['良好','補充必要']},
+    {id:'q10',t:'照明、空調、香り、音楽',o:['正常','異常']},
+    {id:'q11',t:'美術館展示状態',o:['正常','異常']}
+  ]);
+  h += mkSec(fid,'⚙ 設備','h-facility',[
+    {id:'q12',t:'ネットワーク、プロジェクター、音響',o:['正常','異常']},
+    {id:'q13',t:'除湿機および排水',o:['正常','異常']},
+    {id:'q14',t:'会議設備',o:['正常','異常']}
+  ]);
+  h += mkSec(fid,'📝 その他','h-other',[
+    {id:'q15',t:'当日の特記事項',o:['なし','あり']},
+    {id:'q16',t:'写真記録',o:['撮影済','撮影不要']}
+  ]);
+  h += mkTa(fid,'urgent','直ちに対応すべき事項',3);
+  h += mkSig(fid,['点検者署名','責任者確認']);
+  return h;
+}
+
+// ===== FORM 2 =====
+function form2(fid) {
+  var h = mkHdr(fid,[['date','日付','date'],['close','閉館時間','time'],['checker','点検者','text'],['final','最終確認者','text']]);
+  h += mkSec(fid,'🔐 施錠','h-security',[
+    {id:'q01',t:'正面玄関、裏口、各通用口の施錠',o:['完了','異常']},
+    {id:'q02',t:'客室ドアの施錠確認',o:['完了','異常']},
+    {id:'q03',t:'美術館、事務室、倉庫の施錠',o:['完了','異常']}
+  ]);
+  h += mkSec(fid,'⚡ 電源','h-facility',[
+    {id:'q04',t:'共用部電源の確認',o:['完了','異常']},
+    {id:'q05',t:'厨房電源、ガス、火気確認',o:['完了','異常']}
+  ]);
+  h += mkSec(fid,'💧 空調・水回り','h-quality',[
+    {id:'q06',t:'客室、共用部の空調確認',o:['完了','異常']},
+    {id:'q07',t:'浴室、トイレ、厨房の漏水確認',o:['異常なし','異常あり']},
+    {id:'q08',t:'除湿機の状態および排水確認',o:['完了','異常']}
+  ]);
+  h += mkSec(fid,'🏠 安全・防犯','h-safety',[
+    {id:'q09',t:'防犯設備の設定',o:['完了','異常']},
+    {id:'q10',t:'屋外家具・植木鉢・ゴミ箱・工具',o:['正常','固定必要']},
+    {id:'q11',t:'台風・大雨・強風リスク',o:['なし','あり']},
+    {id:'q12',t:'顧客の安全確認',o:['確認済','該当なし']},
+    {id:'q13',t:'緊急連絡先確認',o:['はい','いいえ']}
+  ]);
+  h += mkTa(fid,'remaining','未完了事項',3);
+  h += mkSig(fid,['点検者署名','最終確認者署名']);
+  return h;
+}
+
+// ===== FORM 3 =====
+function form3(fid) {
+  var h = mkHdr(fid,[['date','日付','date'],['room','客室番号','text'],['guest','宿泊顧客名','text'],['checkin','入室予定','time'],['checker','点検者','text'],['final','最終確認者','text']]);
+  h += mkSec(fid,'🧹 清掃・寝具','h-quality',[
+    {id:'q01',t:'床・机・窓台・ゴミ箱の清掃状態',o:['良好','要対応']},
+    {id:'q02',t:'シーツ・布団カバー・枕カバーの整え方',o:['良好','交換必要']}
+  ]);
+  h += mkSec(fid,'🚿 浴室・トイレ','h-safety',[
+    {id:'q03',t:'浴槽・シャワー・排水・異臭の有無',o:['良好','異常']},
+    {id:'q04',t:'トイレ清掃・紙類・異臭の有無',o:['良好','補充必要']},
+    {id:'q05',t:'給湯・出湯・水温・排水の状態',o:['正常','異常']}
+  ]);
+  h += mkSec(fid,'⚙ 設備・備品','h-facility',[
+    {id:'q06',t:'冷暖房・リモコンの作動確認',o:['正常','異常']},
+    {id:'q07',t:'全照明器具の点灯確認',o:['正常','異常']},
+    {id:'q08',t:'施錠・開閉・窓・カーテンの状態',o:['正常','異常']},
+    {id:'q09',t:'タオル・歯ブラシ・スリッパ・飲用水等',o:['揃っている','補充必要']}
+  ]);
+  h += mkSec(fid,'📱 通信・AV機器','h-quality',[
+    {id:'q10',t:'Wi-Fi SSID表示・接続可否',o:['正常','異常']},
+    {id:'q11',t:'通信速度・接続安定性',o:['正常','異常']},
+    {id:'q12',t:'テレビ本体（電源・映像・音声・リモコン）',o:['正常','異常']},
+    {id:'q13',t:'テレビネット機能（YouTube等）',o:['正常','異常']}
+  ]);
+  h += mkSec(fid,'🔒 安全・最終確認','h-security',[
+    {id:'q14',t:'電源・コンセント・滑り・破損の有無',o:['正常','異常']},
+    {id:'q15',t:'異臭・湿気臭・煙草臭の有無',o:['なし','あり']},
+    {id:'q16',t:'特別要望（VIP・アレルギー等）対応確認',o:['なし','あり']},
+    {id:'q17',t:'入室可否',o:['可能','是正後可能']}
+  ]);
+  h += mkTa(fid,'note','異常・特記事項',3);
+  h += mkSig(fid,['点検者署名','最終確認者署名']);
+  return h;
+}
+
+// ===== FORM 4 =====
+function form4(fid) {
+  var h = mkHdr(fid,[['date','日付','date'],['checker','点検者','text'],['weather','天候','text']]);
+  var zones = [{id:'am1',lb:'午前 展示室1'},{id:'am2',lb:'午前 展示室2'},{id:'pm1',lb:'午後 展示室1'},{id:'pm2',lb:'午後 展示室2'}];
+  var tr = '';
+  for (var zi = 0; zi < zones.length; zi++) {
+    var z = zones[zi];
+    var tk = gk(fid,'tmp_'+z.id), hk = gk(fid,'hum_'+z.id);
+    tr += '<tr><td style="text-align:left">' + z.lb + '</td>';
+    tr += '<td><input class="tiny-inp" type="number" placeholder="℃" data-key="' + tk + '" oninput="onInp(this)"></td>';
+    tr += '<td><input class="tiny-inp" type="number" placeholder="%" data-key="' + hk + '" oninput="onInp(this)"></td>';
+    tr += '<td>' + mkOpts(fid,'rng_'+z.id,['範囲内','範囲外'],'padding:5px 10px;font-size:12px') + '</td></tr>';
+  }
+  h += '<div class="fcard"><div class="fcard-head h-art">温湿度記録（目標：温度20〜24℃ / 湿度45〜55%）</div>';
+  h += '<div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">区域</th><th>温度(℃)</th><th>湿度(%)</th><th>目標範囲</th></tr></thead><tbody>' + tr + '</tbody></table></div></div>';
+  h += '<div class="fcard"><div class="fcard-head h-art">展示品状態確認</div>';
+  for (var an = 1; an <= 4; an++) {
+    h += '<div class="check-item" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
+    h += '<input class="tiny-inp" type="text" placeholder="番号" data-key="' + gk(fid,'art_no_'+an) + '" oninput="onInp(this)" style="width:72px">';
+    h += '<input class="field-inp" type="text" placeholder="作品名" data-key="' + gk(fid,'art_nm_'+an) + '" oninput="onInp(this)" style="min-width:100px">';
+    h += mkOpts(fid,'art_st_'+an,['正常','異常'],'padding:5px 12px;font-size:12px');
+    h += mkOpts(fid,'art_ph_'+an,['撮影済','なし'],'padding:5px 10px;font-size:12px');
+    h += '</div>';
+  }
+  var ex = [{id:'bugs',t:'虫害確認',o:['異常なし','虫害あり']},{id:'mold',t:'カビ・水濡れ・変色',o:['なし','あり']},{id:'light',t:'照明異常',o:['なし','あり']},{id:'touch',t:'顧客接触リスク',o:['なし','あり']}];
+  for (var ei = 0; ei < ex.length; ei++) {
+    h += '<div class="check-item"><div class="check-lbl">' + ex[ei].t + '</div>' + mkOpts(fid,ex[ei].id,ex[ei].o) + '</div>';
+  }
+  h += '</div>';
+  h += mkTa(fid,'action','対応必要事項',3);
+  h += mkSig(fid,['点検者署名','責任者確認']);
+  return h;
+}
+
+// ===== FORM 5 =====
+function form5(fid) {
+  var h = mkHdr(fid,[['month','対象月','text','例：2026年6月'],['manager','環境美化責任者','text']]);
+  var areas = ['屋外','屋内','美術館周辺','玄関','テラス・庭園'];
+  for (var ai = 0; ai < areas.length; ai++) {
+    var p = 'pl' + ai;
+    var sk = gk(fid,p+'_st'), wk = gk(fid,p+'_wt'), lk = gk(fid,p+'_lf'), pk = gk(fid,p+'_ps'), stk = gk(fid,p+'_sf');
+    h += '<div class="fcard"><div class="fcard-head h-nature">' + areas[ai] + '</div>';
+    h += '<div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">';
+    h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);min-width:55px">植物状態</span><div class="opts"><button class="opt" data-key="' + sk + '" data-val="良好" onclick="selectOpt(this)" style="padding:6px 14px;font-size:13px">良好</button><button class="opt" data-key="' + sk + '" data-val="要対応" onclick="selectOpt(this)" style="padding:6px 14px;font-size:13px">要対応</button></div></div>';
+    h += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+    h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--muted)">水やり</span><div class="opts"><button class="opt" data-key="' + wk + '" data-val="実施" onclick="selectOpt(this)" style="padding:5px 12px;font-size:12px">実施</button><button class="opt" data-key="' + wk + '" data-val="不要" onclick="selectOpt(this)" style="padding:5px 12px;font-size:12px">不要</button></div></div>';
+    h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--muted)">枯葉処理</span><div class="opts"><button class="opt" data-key="' + lk + '" data-val="実施" onclick="selectOpt(this)" style="padding:5px 12px;font-size:12px">実施</button><button class="opt" data-key="' + lk + '" data-val="不要" onclick="selectOpt(this)" style="padding:5px 12px;font-size:12px">不要</button></div></div>';
+    h += '</div>';
+    h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);min-width:55px">病虫害</span><div class="opts"><button class="opt" data-key="' + pk + '" data-val="なし" onclick="selectOpt(this)" style="padding:5px 14px;font-size:13px">なし</button><button class="opt" data-key="' + pk + '" data-val="あり" onclick="selectOpt(this)" style="padding:5px 14px;font-size:13px">あり</button></div></div>';
+    h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);min-width:55px">担当者</span><input class="field-inp" type="text" data-key="' + stk + '" oninput="onInp(this)" placeholder="氏名"></div>';
+    h += '</div></div>';
+  }
+  var typhKey = gk(fid,'typhoon');
+  h += '<div class="fcard"><div class="fcard-head h-nature">台風前対応確認</div><div class="check-item"><div class="check-lbl">台風前に移動または固定が必要な植物</div><div class="opts"><button class="opt" data-key="' + typhKey + '" data-val="なし" onclick="selectOpt(this)">なし</button><button class="opt" data-key="' + typhKey + '" data-val="あり" onclick="selectOpt(this)">あり</button></div></div></div>';
+  h += mkTa(fid,'improve','今週改善が必要な植物',3);
+  h += mkSig(fid,['責任者確認']);
+  return h;
+}
+
+// ===== FORM 6 =====
+function form6(fid) {
+  var h = mkHdr(fid,[['date','申請日','date'],['reporter','申請者','text'],['found_time','発見時間','time'],['location','場所','text']]);
+  var types = ['漏水','電気','空調','給湯','ネットワーク','施錠','厨房設備','浴場','車両','その他'];
+  h += '<div class="fcard"><div class="fcard-head h-facility">異常分類（複数選択可）</div><div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">';
+  for (var i = 0; i < types.length; i++) h += '<button class="opt" data-key="' + gk(fid,'type_'+types[i]) + '" data-val="' + types[i] + '" onclick="toggleOpt(this)" style="padding:7px 14px;font-size:13px">' + types[i] + '</button>';
+  h += '</div></div>';
+  h += '<div class="fcard"><div class="fcard-head h-facility">緊急度</div><div class="check-item">' + mkOpts(fid,'level',['S級緊急','A級重要','B級一般','C級改善'],'padding:8px 14px') + '</div></div>';
+  var tfs = [['content','異常内容'],['temp','応急対応'],['contractor','修理業者'],['estimate','見積金額'],['approver','承認者'],['done_date','完了日']];
+  h += '<div class="fcard"><div class="fcard-head h-def">詳細情報</div>';
+  for (var ti = 0; ti < tfs.length; ti++) h += mkFld(fid,tfs[ti][0],tfs[ti][1],'text');
+  h += '<div style="padding:12px 16px"><label class="note-lbl">検収内容</label><textarea class="note-ta" rows="2" data-key="' + gk(fid,'check_detail') + '" oninput="onInp(this)"></textarea></div></div>';
+  h += mkSec(fid,'検収確認','h-def',[
+    {id:'stop',t:'使用停止',o:['実施','未実施','不要']},
+    {id:'fixed',t:'故障は修復されたか',o:['はい','いいえ']},
+    {id:'safe',t:'安全に使用できるか',o:['はい','いいえ']},
+    {id:'looks',t:'外観は回復したか',o:['はい','いいえ','該当なし']},
+    {id:'extra',t:'追加修理は必要か',o:['不要','必要']},
+    {id:'invoice',t:'請求書・領収書は保存したか',o:['はい','いいえ']}
+  ]);
+  h += mkSig(fid,['検収者署名','責任者確認']);
+  return h;
+}
+
+// ===== FORM 7 =====
+function form7(fid) {
+  var h = mkHdr(fid,[['reg_date','登録日','date'],['recorder','登録者','text'],['resp','接遇責任者','text'],['guest','顧客氏名','text'],['company','所属・会社名','text'],['count','人数','text'],['visit_date','来館日','date'],['arrive','来館時間','time'],['leave','退館時間','time']]);
+  var purps = ['宿泊','見学','企業研修','美術館','飲食','協業打合せ','VIP接遇','その他'];
+  h += '<div class="fcard"><div class="fcard-head h-other">接遇目的（複数選択可）</div><div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">';
+  for (var i = 0; i < purps.length; i++) h += '<button class="opt" data-key="' + gk(fid,'purp_'+purps[i]) + '" data-val="' + purps[i] + '" onclick="toggleOpt(this)" style="padding:7px 14px;font-size:13px">' + purps[i] + '</button>';
+  h += '</div></div>';
+  h += mkSec(fid,'サービス内容','h-quality',[
+    {id:'meal_b',t:'朝食',o:['あり','なし']},{id:'meal_l',t:'昼食',o:['あり','なし']},
+    {id:'meal_d',t:'夕食',o:['あり','なし']},{id:'meal_t',t:'茶菓',o:['あり','なし']},
+    {id:'stay',t:'宿泊',o:['あり','なし']},{id:'fee',t:'料金区分',o:['通常料金','割引','無料','確認中']},
+    {id:'transport',t:'送迎手配',o:['なし','福岡空港','長崎空港','その他']},
+    {id:'photo',t:'写真・広報利用',o:['可','不可','別途確認']},
+    {id:'rank',t:'接遇区分',o:['通常','重要','VIP']}
+  ]);
+  var tfs7 = [['room','客室手配'],['special_req','特別要望'],['allergy','食事制限・アレルギー'],['approver','承認者']];
+  h += '<div class="fcard"><div class="fcard-head h-def">詳細・特記事項</div>';
+  for (var ti = 0; ti < tfs7.length; ti++) {
+    h += '<div style="padding:10px 16px;border-bottom:1px solid #f5f5f5"><label class="note-lbl">' + tfs7[ti][1] + '</label><textarea class="note-ta" rows="2" data-key="' + gk(fid,tfs7[ti][0]) + '" oninput="onInp(this)"></textarea></div>';
+  }
+  h += '</div>';
+  h += mkSec(fid,'接遇後の記録','h-quality',[{id:'satisfaction',t:'顧客満足度',o:['良好','普通','要改善']}]);
+  h += mkTa(fid,'opinion','顧客意見',3);
+  h += mkTa(fid,'followup','今後のフォロー事項',2);
+  h += mkSig(fid,['責任者署名']);
+  return h;
+}
+
+// ===== FORM 8 =====
+function form8(fid) {
+  var h = mkHdr(fid,[['date','申請日','date'],['applicant','申請者','text'],['guest','顧客氏名・所属','text'],['visit_date','接遇日','date'],['count','人数','text'],['normal_price','通常価格','text','例：50,000円'],['applied_price','申請後価格','text'],['discount','減免金額','text']]);
+  var cats = ['無料宿泊','無料飲食','割引','無料見学','無料会議室','体験提供','その他'];
+  h += '<div class="fcard"><div class="fcard-head h-other">申請区分（複数選択可）</div><div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">';
+  for (var i = 0; i < cats.length; i++) h += '<button class="opt" data-key="' + gk(fid,'cat_'+cats[i]) + '" data-val="' + cats[i] + '" onclick="toggleOpt(this)" style="padding:7px 14px;font-size:13px">' + cats[i] + '</button>';
+  h += '</div></div>';
+  var purps = ['協業開発','VIP維持','メディア広報','企業視察','関係維持','その他'];
+  h += '<div class="fcard"><div class="fcard-head h-other">商業目的（複数選択可）</div><div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">';
+  for (var pi = 0; pi < purps.length; pi++) h += '<button class="opt" data-key="' + gk(fid,'purp_'+purps[pi]) + '" data-val="' + purps[pi] + '" onclick="toggleOpt(this)" style="padding:7px 14px;font-size:13px">' + purps[pi] + '</button>';
+  h += '</div></div>';
+  h += mkSec(fid,'サービス内容','h-quality',[
+    {id:'stay',t:'宿泊の有無',o:['あり','なし']},{id:'food',t:'飲食の有無',o:['あり','なし']},
+    {id:'transport',t:'車両送迎の有無',o:['あり','なし']},{id:'promo',t:'広報利用可否',o:['可','不可','確認中']}
+  ]);
+  var approvals = [{id:'mgr',lb:'支配人'},{id:'ceo',lb:'会長／代表者'}];
+  h += '<div class="fcard"><div class="fcard-head h-safety">承認欄</div>';
+  for (var ai = 0; ai < approvals.length; ai++) {
+    var ap = approvals[ai];
+    h += '<div class="check-item"><div class="check-lbl" style="font-weight:700">' + ap.lb + '</div>';
+    h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">';
+    h += mkOpts(fid,'ap_'+ap.id,['承認','否認','要修正']);
+    h += '<input style="border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:13px;font-family:inherit;outline:none" type="date" data-key="' + gk(fid,'ap_date_'+ap.id) + '" oninput="onInp(this)">';
+    h += '</div></div>';
+  }
+  h += '<div class="check-item"><div class="check-lbl">実施結果</div>' + mkOpts(fid,'result',['実施済','取消','変更']) + '</div></div>';
+  h += mkTa(fid,'reason','申請理由',3);
+  h += mkTa(fid,'dept','費用負担部門・案件',2);
+  h += mkTa(fid,'opinion','申請者意見',2);
+  h += mkTa(fid,'remarks','備考',2);
+  h += mkSig(fid,['保管者']);
+  return h;
+}
+
+// ===== FORM 9 =====
+function form9(fid) {
+  var h = mkHdr(fid,[['name','台風名・種別','text'],['expected','予想影響日','date'],['manager','責任者','text']]);
+  h += mkSec(fid,'72時間前点検','h-typhoon',[
+    {id:'t72a',t:'気象情報確認',o:['完了','未完了']},{id:'t72b',t:'予約制限判断',o:['完了','未完了']},
+    {id:'t72c',t:'宿泊顧客行程確認',o:['完了','該当なし']},{id:'t72d',t:'従業員勤務・帰宅安全確認',o:['完了','未完了']},
+    {id:'t72e',t:'緊急連絡先確認',o:['完了','未完了']}
+  ]);
+  h += mkSec(fid,'48時間前点検','h-typhoon',[
+    {id:'t48a',t:'扉・窓確認',o:['完了','異常']},{id:'t48b',t:'屋根、バルコニー、テラス確認',o:['完了','異常']},
+    {id:'t48c',t:'排水溝確認',o:['完了','異常']},{id:'t48d',t:'車両安全位置確認',o:['完了','未完了']},
+    {id:'t48e',t:'外灯、看板、植木鉢確認',o:['完了','異常']}
+  ]);
+  h += mkSec(fid,'24時間前点検','h-typhoon',[
+    {id:'t24a',t:'椅子収納',o:['完了','該当なし']},{id:'t24b',t:'テーブル固定',o:['完了','該当なし']},
+    {id:'t24c',t:'屋外設備固定',o:['完了','該当なし']},{id:'t24d',t:'ゴミ箱・工具収納',o:['完了','該当なし']},
+    {id:'t24e',t:'重要区域撮影',o:['完了','未完了']},{id:'t24f',t:'応急物資確認',o:['完了','未完了']}
+  ]);
+  h += mkSec(fid,'台風通過後点検','h-safety',[
+    {id:'taa',t:'人員安全',o:['正常','異常']},{id:'tab',t:'建物外観',o:['正常','異常']},
+    {id:'tac',t:'漏水',o:['なし','あり']},{id:'tad',t:'電気',o:['正常','異常']},
+    {id:'tae',t:'美術館',o:['正常','異常']},{id:'taf',t:'車両',o:['正常','異常']},
+    {id:'tag',t:'植物・庭園',o:['正常','異常']},{id:'tah',t:'修理必要事項',o:['なし','あり']},
+    {id:'tai',t:'台風後写真撮影',o:['撮影済','未撮影']},{id:'taj',t:'報告書提出の要否',o:['必要','不要']}
+  ]);
+  h += mkSig(fid,['責任者署名','管理者確認']);
+  return h;
+}
+
+// ===== FORM 10 =====
+function form10(fid) {
+  var h = mkHdr(fid,[['rep_date','報告日','date'],['reporter','報告者','text'],['inc_date','発生日','date'],['inc_time','発生時間','time'],['location','発生場所','text'],['persons','関係者','text']]);
+  var types = ['顧客負傷','従業員負傷','火災','漏水','漏電','盗難','苦情','食品衛生','美術品異常','設備故障','災害','その他'];
+  h += '<div class="fcard"><div class="fcard-head h-other">事件分類（複数選択可）</div><div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">';
+  for (var i = 0; i < types.length; i++) h += '<button class="opt" data-key="' + gk(fid,'type_'+types[i]) + '" data-val="' + types[i] + '" onclick="toggleOpt(this)" style="padding:7px 14px;font-size:13px">' + types[i] + '</button>';
+  h += '</div></div>';
+  h += '<div class="fcard"><div class="fcard-head h-other">緊急度</div><div class="check-item">' + mkOpts(fid,'level',['S級','A級','B級','C級'],'padding:8px 18px') + '</div></div>';
+  h += mkSec(fid,'対応確認','h-other',[
+    {id:'police',t:'警察・消防・救急への連絡',o:['あり','なし']},
+    {id:'cust_exp',t:'顧客への説明',o:['済','未了','該当なし']},
+    {id:'photo',t:'写真・動画記録',o:['あり','なし']},
+    {id:'compensation',t:'賠償可能性',o:['あり得る','なし','確認中']},
+    {id:'repair',t:'修理必要性',o:['あり','なし']},
+    {id:'mgr',t:'管理者判断の要否',o:['必要','不要']}
+  ]);
+  var atbl = '<table class="tbl"><thead><tr><th style="text-align:left">対応事項</th><th>責任者</th><th>期限</th><th>完了</th></tr></thead><tbody>';
+  for (var an = 1; an <= 3; an++) {
+    atbl += '<tr><td><input class="field-inp" type="text" data-key="' + gk(fid,'act_t'+an) + '" oninput="onInp(this)" placeholder="対応事項" style="width:100%;min-width:80px"></td>';
+    atbl += '<td><input class="tiny-inp" type="text" data-key="' + gk(fid,'act_r'+an) + '" oninput="onInp(this)" placeholder="担当" style="width:72px"></td>';
+    atbl += '<td><input class="tiny-inp" type="date" data-key="' + gk(fid,'act_d'+an) + '" oninput="onInp(this)" style="width:120px"></td>';
+    atbl += '<td>' + mkOpts(fid,'act_s'+an,['完了','未完了'],'padding:4px 10px;font-size:12px') + '</td></tr>';
+  }
+  atbl += '</tbody></table>';
+  h += '<div class="fcard"><div class="fcard-head h-def">今後の対応計画</div><div style="overflow-x:auto;padding:10px">' + atbl + '</div></div>';
+  h += mkTa(fid,'background','発生経緯',3);
+  h += mkTa(fid,'cause','初期原因',2);
+  h += mkTa(fid,'action_taken','実施済対応',2);
+  h += mkTa(fid,'contact','連絡先・連絡相手',2);
+  h += mkTa(fid,'prevent1','再発防止策①',2);
+  h += mkTa(fid,'prevent2','再発防止策②',2);
+  h += mkSig(fid,['支配人確認','会長／代表者確認']);
+  return h;
+}
+
+// Init
+updateDots();
+</script>
+</body>
+</html>
