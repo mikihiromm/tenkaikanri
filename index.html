@@ -248,7 +248,10 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
     <div class="settings-section">
       <div class="settings-head">🗄 データ管理</div>
       <div class="settings-row">
-        <button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button>
+        <button class="settings-btn green" onclick="exportHTML()">📄 全記録をHTMLレポートで保存</button>
+      </div>
+      <div class="settings-row">
+        <button class="settings-btn" onclick="exportCSV()">📥 全データをCSVでダウンロード</button>
       </div>
       <div class="settings-row">
         <button class="settings-btn red" onclick="clearAllData()">🗑 全データを削除（注意）</button>
@@ -603,6 +606,145 @@ function exportCSV() {
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
+// ===== HTML REPORT =====
+var FIELD_LABELS = {
+  date:'日付',time:'点検時間',weather:'天候',checker:'点検者',manager:'当日責任者',final:'最終確認者',
+  recorder:'登録者',reporter:'報告者',author:'作成者',supervisor:'担当責任者',
+  close:'閉館時間',room:'客室番号',guest:'顧客氏名',checkin:'入室予定',
+  month:'対象月',location:'場所',contractor:'修理業者',estimate:'見積金額',approver:'承認者',
+  done_date:'完了日',reg_date:'登録日',company:'所属・会社名',count:'人数',
+  visit_date:'来館/接遇日',arrive:'来館時間',leave:'退館時間',
+  normal_price:'通常価格',applied_price:'申請後価格',discount:'減免金額',
+  urgent:'直ちに対応すべき事項',remaining:'未完了事項',note:'異常・特記事項',
+  action:'対応必要事項',improve:'今週改善が必要な植物',content:'異常内容',
+  temp:'応急対応',background:'発生経緯',cause:'初期原因',action_taken:'実施済対応',
+  prevent1:'再発防止策',opinion:'顧客意見',followup:'今後のフォロー事項',
+  reason:'申請理由',remarks:'備考',special_req:'特別要望',allergy:'食事制限・アレルギー',
+  dept:'対象部署',instruction:'指示・連絡事項',notice:'注意事項',issues:'問題・課題',
+  stock_memo:'在庫・発注メモ',handover:'翌日への引き継ぎ事項',main:'本日の主な業務',
+  guests:'宿泊者数',name:'台風名・種別',expected:'予想影響日',persons:'関係者',
+  inc_date:'発生日',inc_time:'発生時間',meal:'対象食事',staff:'担当者',
+  buyer:'購入者',total:'合計金額',check_detail:'検収内容',
+  q01:'玄関・裏口・通用口',q02:'扉・窓',q03:'厨房火気・ガス・電源',q04:'給湯設備',
+  q05:'漏水・漏電・異臭',q06:'消防通路',q07:'浴場・浴室床面',q08:'共用部清掃',
+  q09:'トイレ清掃・備品',q10:'照明・空調・音楽',q11:'美術館展示状態',
+  q12:'ネットワーク・音響',q13:'除湿機・排水',q14:'会議設備',q15:'特記事項',q16:'写真記録',
+  level:'緊急度',priority:'優先度',status:'状態',result:'実施結果',eval:'総合評価',
+  satisfaction:'顧客満足度',fee:'料金区分',rank:'接遇区分',
+  meal_b:'朝食',meal_l:'昼食',meal_d:'夕食',meal_t:'茶菓',stay:'宿泊',
+  stop:'使用停止',fixed:'修復確認',safe:'安全確認',looks:'外観回復',extra:'追加修理',invoice:'請求書保存',
+  police:'警察・消防・救急',cust_exp:'顧客への説明',photo:'写真・動画記録',repair:'修理必要性',mgr:'管理者判断',
+  conf1:'スタッフ周知',conf2:'責任者確認',hw:'手洗い・消毒',exp:'賞味期限確認',
+  tool:'調理器具洗浄',floor:'床・排水口清掃',trash:'ゴミ処理',pest:'害虫確認',
+  sup_paper:'トイレットペーパー',sup_soap:'ハンドソープ',sup_trash:'ゴミ袋交換',
+  bugs:'虫害確認',mold:'カビ・水濡れ',light:'照明異常',touch:'接触リスク',
+  t72a:'気象情報確認',t72b:'予約制限判断',t72c:'緊急連絡先確認',
+  t48a:'扉・窓確認',t48b:'屋根・バルコニー',t48c:'排水溝',t48d:'外灯・看板・植木鉢',
+  t24a:'屋外設備収納・固定',t24b:'重要区域撮影',t24c:'応急物資確認',
+  taa:'人員安全',tab:'建物外観',tac:'漏水',tad:'電気',tae:'美術館',taf:'修理必要事項'
+};
+function getLabel(fid, rawKey) {
+  var k = rawKey.replace('f'+fid+'_','').replace(/\d+$/,'').replace(/_$/,'');
+  return FIELD_LABELS[k] || FIELD_LABELS[rawKey.replace('f'+fid+'_','')] || rawKey.replace('f'+fid+'_','');
+}
+function isTextareaKey(k) {
+  var taKeys = ['urgent','remaining','note','action','improve','content','temp','background','cause','action_taken','prevent1','opinion','followup','reason','remarks','special_req','allergy','instruction','notice','issues','stock_memo','handover','main','check_detail'];
+  var base = k.replace(/f\d+_/,'');
+  return taKeys.indexOf(base) >= 0;
+}
+
+function exportHTML() {
+  var dkeys = getDateKeys().sort().reverse();
+  if (dkeys.length === 0) { alert('エクスポートするデータがありません'); return; }
+  var genDate = new Date().toLocaleString('ja-JP');
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">';
+  html += '<meta name="viewport" content="width=device-width,initial-scale=1">';
+  html += '<title>天海の城 管理記録レポート</title><style>';
+  html += '*{box-sizing:border-box;margin:0;padding:0}';
+  html += 'body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background:#f0ede6;color:#1a1a1a;padding:20px}';
+  html += '.report-header{background:#1a2744;color:#fff;padding:28px 24px;border-radius:14px;margin-bottom:24px;text-align:center}';
+  html += '.report-title{color:#c8a951;font-size:24px;font-weight:700;letter-spacing:3px}';
+  html += '.report-sub{color:rgba(255,255,255,.6);font-size:12px;margin-top:6px}';
+  html += '.date-section{margin-bottom:28px}';
+  html += '.date-label{background:#1a2744;color:#c8a951;font-size:14px;font-weight:700;padding:8px 16px;border-radius:8px;display:inline-block;margin-bottom:12px}';
+  html += '.form-card{background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}';
+  html += '.form-head{padding:10px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}';
+  html += '.form-head.ok{background:#e8f5e9;color:#1b5e20}';
+  html += '.form-head.ng{background:#fff3e0;color:#bf360c}';
+  html += '.field-row{display:flex;padding:8px 16px;border-bottom:1px solid #f5f5f5;align-items:flex-start;gap:12px}';
+  html += '.field-row:last-child{border-bottom:none}';
+  html += '.field-lbl{font-size:11px;color:#888;min-width:120px;flex-shrink:0;padding-top:2px}';
+  html += '.field-val{font-size:13px;font-weight:600;flex:1;line-height:1.5}';
+  html += '.field-ta{font-size:13px;flex:1;line-height:1.7;white-space:pre-wrap;color:#333}';
+  html += '.val-ok{color:#2e7d4f}.val-ng{color:#c0392b;font-weight:700}.val-warn{color:#d68910;font-weight:700}';
+  html += '.ng-badge{background:#ffebee;color:#c0392b;font-size:11px;padding:2px 7px;border-radius:7px;margin-left:8px}';
+  html += '.summary-bar{background:#f8f8f8;border-top:1px solid #eee;padding:8px 16px;font-size:11px;color:#888;display:flex;gap:16px}';
+  html += '.sig-row{display:flex;gap:16px;padding:10px 16px;border-top:1px solid #f0f0f0;flex-wrap:wrap}';
+  html += '.sig-box{border:1px solid #ddd;border-radius:8px;padding:8px 14px;min-width:140px;font-size:12px}';
+  html += '.sig-lbl{color:#888;font-size:11px;margin-bottom:4px}.sig-val{font-size:13px;font-weight:600}';
+  html += '@media print{body{padding:0;background:#fff}.date-section{page-break-before:always}.date-section:first-child{page-break-before:auto}}';
+  html += '</style></head><body>';
+  html += '<div class="report-header"><div class="report-title">天海の城</div>';
+  html += '<div class="report-sub">管理記録レポート　生成日時：'+genDate+'</div>';
+  html += '<div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:4px">全'+dkeys.length+'日分 / '+TOTAL_FORMS+'様式</div></div>';
+
+  for (var di = 0; di < dkeys.length; di++) {
+    var dk = dkeys[di];
+    var dLabel = dk.replace(/-/g,'/');
+    html += '<div class="date-section"><div class="date-label">📅 '+dLabel+'</div>';
+    for (var fi = 1; fi <= TOTAL_FORMS; fi++) {
+      var rec = getRecord(fi, dk); if (Object.keys(rec).length === 0) continue;
+      var ngCnt = 0; var okCnt = 0; var sigs = {}; var taFields = {}; var normalFields = {};
+      var keys = Object.keys(rec);
+      for (var ki = 0; ki < keys.length; ki++) {
+        var k = keys[ki]; var v = rec[k];
+        if (!v) continue;
+        if (k.indexOf('sig') >= 0) { sigs[k] = v; continue; }
+        if (isTextareaKey(k)) { taFields[k] = v; continue; }
+        if (isOpt(v)) { if (isNg(v)) ngCnt++; else okCnt++; }
+        normalFields[k] = v;
+      }
+      var headCls = ngCnt > 0 ? 'ng' : 'ok';
+      html += '<div class="form-card">';
+      html += '<div class="form-head '+headCls+'"><span>'+ICONS[fi]+'</span><span>様式'+fi+'　'+TITLES[fi]+'</span>';
+      if (ngCnt > 0) html += '<span class="ng-badge">異常 '+ngCnt+'件</span>';
+      html += '</div>';
+      var nkeys = Object.keys(normalFields);
+      for (var ni = 0; ni < nkeys.length; ni++) {
+        var nk = nkeys[ni]; var nv = normalFields[nk];
+        var valCls = isNg(nv) ? 'val-ng' : (WN_VALS.indexOf(nv)>=0 ? 'val-warn' : 'val-ok');
+        var isOptVal = isOpt(nv);
+        html += '<div class="field-row"><span class="field-lbl">'+getLabel(fi,nk)+'</span>';
+        html += '<span class="field-val '+(isOptVal?valCls:'')+'" style="'+(isOptVal?'':'color:#333')+'">'+nv+'</span></div>';
+      }
+      var tkeys = Object.keys(taFields);
+      for (var ti = 0; ti < tkeys.length; ti++) {
+        var tk = tkeys[ti]; var tv = taFields[tk];
+        html += '<div class="field-row"><span class="field-lbl">'+getLabel(fi,tk)+'</span><span class="field-ta">'+tv.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span></div>';
+      }
+      html += '<div class="summary-bar"><span>✅ 正常：'+okCnt+'件</span>';
+      if (ngCnt>0) html += '<span style="color:#c0392b;font-weight:700">⚠ 異常：'+ngCnt+'件</span>';
+      html += '</div>';
+      var skeys = Object.keys(sigs);
+      if (skeys.length > 0) {
+        html += '<div class="sig-row">';
+        for (var si = 0; si < skeys.length; si++) {
+          var slbl = skeys[si].replace('f'+fi+'_sig','署名'+(parseInt(skeys[si].replace(/\D/g,''),10)+1));
+          html += '<div class="sig-box"><div class="sig-lbl">'+slbl+'</div><div class="sig-val">'+sigs[skeys[si]]+'</div></div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</body></html>';
+  var blob = new Blob([html], {type:'text/html;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download='tenkai_report_'+today()+'.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
 // ===== MANAGER PANEL =====
 function openManager() {
   var entered = prompt('管理者PINを入力してください');
@@ -701,7 +843,9 @@ function renderManager() {
     h += '</div>';
   }
 
-  h += '<div style="padding:4px 0 20px"><button class="settings-btn green" style="margin-bottom:8px" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
+  h += '<div style="padding:4px 0 20px">';
+  h += '<button class="settings-btn" style="background:#c8a951;color:#1a2744;margin-bottom:8px" onclick="exportHTML()">📄 全記録をHTMLレポートで保存</button>';
+  h += '<button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
   document.getElementById('manager-body').innerHTML = h;
 }
 
