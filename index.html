@@ -2,933 +2,683 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>天海の城 管理表</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天海の城 絵画管理</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--navy:#1a2744;--gold:#c8a951;--bg:#f0ede6;--card:#fff;--green:#2e7d4f;--red:#c0392b;--orange:#d68910;--text:#1a1a1a;--muted:#888;--border:#e0e0e0;--radius:14px;--shadow:0 2px 12px rgba(0,0,0,.1)}
-body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--text)}
-.screen{display:none;min-height:100vh}.screen.active{display:block}
-.home-header{background:var(--navy);padding:52px 20px 20px;text-align:center}
-.home-title{color:var(--gold);font-size:28px;font-weight:700;letter-spacing:3px}
-.home-sub{color:rgba(255,255,255,.6);font-size:12px;margin-top:4px}
-.home-date{color:rgba(255,255,255,.85);font-size:14px;margin-top:8px;font-weight:600}
-.home-actions{padding:10px 14px 4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
-.action-btn{background:var(--navy);border:1px solid rgba(255,255,255,.2);color:#fff;padding:11px 4px;border-radius:11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center}
-.action-btn:active{opacity:.7}
-.action-btn.gold{background:var(--gold);color:var(--navy);border-color:transparent}
-.home-bottom-row{padding:6px 14px 4px;display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.home-grid{padding:10px 14px 40px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-card{background:var(--card);border-radius:var(--radius);padding:18px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--shadow);cursor:pointer;position:relative;min-height:128px;justify-content:center;border:2.5px solid transparent}
-.form-card:active{transform:scale(.96)}
-.card-num{position:absolute;top:8px;left:10px;font-size:11px;color:var(--muted);font-weight:700}
-.card-icon{font-size:30px}.card-title{font-size:11px;font-weight:600;text-align:center;line-height:1.5}
-.card-status{position:absolute;top:7px;right:7px;font-size:10px;font-weight:700;padding:2px 5px;border-radius:7px}
-.st-saved{background:#e8f5e9;color:var(--green)}.st-draft{background:#fff8e1;color:var(--orange)}
-.form-card.saved{border-color:var(--green)}.form-card.drafted{border-color:var(--gold)}
-.form-header{background:var(--navy);padding:52px 10px 12px;display:flex;align-items:center;gap:7px;position:sticky;top:0;z-index:99;flex-wrap:wrap}
-.btn-sm{background:rgba(255,255,255,.15);border:none;color:#fff;padding:8px 11px;border-radius:18px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.fh-title{flex:1;color:#fff;font-size:13px;font-weight:700;line-height:1.3;min-width:0}
-.status-bar{background:#f8f8f8;padding:8px 14px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.badge-saved{background:#e8f5e9;color:var(--green);padding:3px 9px;border-radius:9px;font-weight:700;font-size:11px}
-.badge-draft{background:#fff8e1;color:var(--orange);padding:3px 9px;border-radius:9px;font-weight:700;font-size:11px}
-.form-body{padding:14px 14px 100px}
-.fcard{background:var(--card);border-radius:var(--radius);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
-.fcard-head{padding:10px 15px;font-size:12px;font-weight:700;letter-spacing:.5px}
-.h-def{background:#f5f5f5;color:#555}.h-safety{background:#e8f5e9;color:#1b5e20}.h-quality{background:#e3f2fd;color:#0d47a1}
-.h-facility{background:#fff3e0;color:#bf360c}.h-other{background:#f3e5f5;color:#4a148c}.h-security{background:#fce4ec;color:#880e4f}
-.h-art{background:#e0f2f1;color:#004d40}.h-nature{background:#f1f8e9;color:#33691e}.h-typhoon{background:#e8eaf6;color:#1a237e}
-.h-mgr{background:#e8eaf6;color:#1a237e}
-.field-row{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid #f5f5f5}
-.field-row:last-child{border-bottom:none}
-.field-lbl{font-size:12px;color:var(--muted);min-width:80px;flex-shrink:0}
-.field-inp{flex:1;border:none;border-bottom:1.5px solid var(--border);font-size:15px;font-family:inherit;color:var(--text);background:transparent;outline:none;padding:3px 0;min-width:0}
-.field-inp:focus{border-bottom-color:var(--gold)}
-.today-btn{background:var(--gold);border:none;border-radius:9px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;flex-shrink:0}
-.check-item{padding:10px 15px;border-bottom:1px solid #f5f5f5}.check-item:last-child{border-bottom:none}
-.check-lbl{font-size:13px;line-height:1.5;margin-bottom:7px}
-.opts{display:flex;gap:6px;flex-wrap:wrap}
-.opt{padding:8px 16px;border-radius:20px;border:2px solid var(--border);background:#f8f8f8;font-size:13px;font-weight:600;cursor:pointer;min-height:40px;font-family:inherit}
-.opt:active{transform:scale(.93)}
-.opt.sel-ok{background:var(--green);border-color:var(--green);color:#fff}
-.opt.sel-ng{background:var(--red);border-color:var(--red);color:#fff}
-.opt.sel-warn{background:var(--orange);border-color:var(--orange);color:#fff}
-.note-lbl{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
-.note-ta{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;resize:vertical;min-height:70px;outline:none;color:var(--text)}
-.note-ta:focus{border-color:var(--gold)}
-.tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{background:#f5f5f5;padding:6px 5px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted)}
-.tbl td{padding:6px 5px;border-bottom:1px solid #f5f5f5;text-align:center;vertical-align:middle}
-.tiny-inp{width:58px;border:1.5px solid var(--border);border-radius:7px;padding:4px;font-size:12px;text-align:center;font-family:inherit;outline:none}
-.tiny-inp:focus{border-color:var(--gold)}
-.save-footer{position:fixed;bottom:0;left:0;right:0;background:var(--navy);padding:10px 14px;display:flex;align-items:center;gap:10px;z-index:98}
-.save-btn{flex:1;background:var(--gold);border:none;color:var(--navy);padding:13px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
-.save-btn:active{opacity:.7}
-.save-msg{color:rgba(255,255,255,.8);font-size:11px;min-width:60px;text-align:right}
-.dash-section{margin-bottom:18px}
-.dash-sec-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.5px}
-.summary-row{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer}
-.summary-row:active{opacity:.7}
-.sum-icon{font-size:20px;flex-shrink:0}.sum-name{flex:1;font-size:13px;font-weight:600;line-height:1.4}
-.sum-sub{display:block;font-size:11px;color:var(--muted);font-weight:400}
-.sum-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:9px;flex-shrink:0}
-.sb-done{background:#e8f5e9;color:var(--green)}.sb-draft{background:#fff8e1;color:var(--orange)}.sb-empty{background:#f5f5f5;color:var(--muted)}
-.prog-card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
-.prog-name{font-size:12px;font-weight:700;margin-bottom:7px}
-.prog-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-bottom:4px}
-.prog-fill{height:100%;border-radius:4px}
-.pf-hi{background:var(--green)}.pf-mid{background:var(--orange)}.pf-lo{background:var(--red)}
-.prog-lbl{font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-.stats-toggle{background:#f0f0f0;border:none;padding:5px 11px;border-radius:9px;font-size:11px;cursor:pointer;font-family:inherit;margin-top:7px}
-.stats-detail{display:none;margin-top:9px;border-top:1px solid #f5f5f5;padding-top:9px}
-.stats-detail.open{display:block}
-.stat-row{display:flex;align-items:center;padding:4px 0;border-bottom:1px solid #f9f9f9;font-size:12px}
-.stat-row:last-child{border:none}
-.stat-lbl{flex:1;color:var(--text)}.stat-ok{color:var(--green);font-weight:700;margin-left:8px}
-.stat-ng{color:var(--red);font-weight:700;margin-left:8px}.stat-warn{color:var(--orange);font-weight:700;margin-left:8px}
-.anomaly-card{background:var(--card);border-radius:10px;padding:10px 13px;margin-bottom:7px;box-shadow:var(--shadow);border-left:3px solid var(--red)}
-.anomaly-date{font-size:11px;color:var(--muted)}.anomaly-text{font-size:13px;margin-top:2px;font-weight:600}
-.hist-item{background:var(--card);border-radius:12px;padding:12px 15px;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.hist-item:active{opacity:.7}
-.hist-date{font-size:15px;font-weight:700}.hist-ng{font-size:11px;color:var(--red);margin-top:2px}.hist-ok{font-size:11px;color:var(--green);margin-top:2px}
-.settings-section{background:var(--card);border-radius:var(--radius);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
-.settings-head{padding:12px 15px;font-size:13px;font-weight:700;background:#f5f5f5;color:#333}
-.settings-row{padding:14px 15px;border-bottom:1px solid #f5f5f5;display:flex;flex-direction:column;gap:7px}
-.settings-row:last-child{border-bottom:none}
-.settings-lbl{font-size:13px;font-weight:700}
-.settings-sub{font-size:11px;color:var(--muted);line-height:1.5}
-.settings-inp{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;color:var(--text)}
-.settings-inp:focus{border-color:var(--gold)}
-.settings-btn{background:var(--navy);border:none;color:#fff;padding:11px 20px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;width:100%}
-.settings-btn:active{opacity:.7}
-.settings-btn.green{background:var(--green)}
-.settings-btn.red{background:var(--red)}
-.mgr-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
-.mgr-stat-box{background:var(--card);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)}
-.mgr-stat-num{font-size:32px;font-weight:700}
-.mgr-stat-lbl{font-size:11px;color:var(--muted);margin-top:4px}
-.mgr-table{width:100%;border-collapse:collapse;font-size:12px}
-.mgr-table th{background:var(--navy);color:#fff;padding:8px 7px;text-align:center;font-size:11px}
-.mgr-table td{padding:8px 7px;border-bottom:1px solid #f0f0f0;text-align:center;vertical-align:middle}
-.mgr-table tr:last-child td{border-bottom:none}
-.mgr-table tr:nth-child(even) td{background:#fafafa}
-.badge-ok{background:#e8f5e9;color:var(--green);padding:2px 7px;border-radius:7px;font-weight:700;font-size:11px;white-space:nowrap}
-.badge-ng{background:#ffebee;color:var(--red);padding:2px 7px;border-radius:7px;font-weight:700;font-size:11px;white-space:nowrap}
-.badge-no{background:#f5f5f5;color:var(--muted);padding:2px 7px;border-radius:7px;font-size:11px;white-space:nowrap}
-.sheets-indicator{padding:8px 14px;font-size:12px;text-align:center}
-.sheets-ok{color:var(--green);font-weight:700}
-.sheets-no{color:var(--muted)}
-@media print{.form-header,.save-footer,#home-screen,#dash-screen,#summary-screen,#hist-screen,#settings-screen,#manager-screen{display:none!important}#form-screen{display:block!important}}
+:root {
+  --navy: #1a2744;
+  --navy-light: #243460;
+  --gold: #c9a84c;
+  --gold-light: #e8c96d;
+  --bg: #f0f2f5;
+  --white: #ffffff;
+  --gray: #6b7280;
+  --gray-light: #e5e7eb;
+  --red: #dc2626;
+  --green: #16a34a;
+  --orange: #ea580c;
+  --purple: #7c3aed;
+  --blue: #2563eb;
+  --text: #1f2937;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+#header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: var(--white); position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+#header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+#header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; }
+#header h1 span { color: var(--gold); }
+#header-sub { font-size: 0.72rem; opacity: 0.8; margin-top: 2px; }
+
+/* MAIN */
+#main { padding: 16px; max-width: 1000px; margin: 0 auto; }
+
+/* TABS */
+.tab-bar { display: flex; gap: 6px; margin-bottom: 16px; }
+.tab-btn {
+  flex: 1; padding: 10px 8px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;
+  border: 1px solid var(--gray-light); background: white; color: var(--gray); font-weight: 700;
+  text-align: center; transition: all 0.2s;
+}
+.tab-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+.tab-btn .cnt { font-size: 0.7rem; opacity: 0.8; margin-left: 4px; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.toolbar input[type=search] {
+  flex: 1; min-width: 140px; padding: 9px 12px; border: 1px solid var(--gray-light);
+  border-radius: 6px; font-size: 0.85rem;
+}
+.btn {
+  padding: 9px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap;
+}
+.btn-navy { background: var(--navy); color: white; }
+.btn-navy:hover { background: var(--navy-light); }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-gold:hover { background: var(--gold-light); }
+.btn-ghost { background: white; color: var(--navy); border: 1px solid var(--gray-light); }
+.btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+
+/* SUMMARY STRIP */
+.summary-strip { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; }
+.sum-box {
+  background: white; border-radius: 8px; padding: 8px 14px; box-shadow: var(--shadow);
+  text-align: center; min-width: 78px; flex-shrink: 0; border-top: 3px solid var(--gold);
+}
+.sum-box .n { font-size: 1.3rem; font-weight: 700; }
+.sum-box .l { font-size: 0.68rem; color: var(--gray); margin-top: 2px; }
+
+/* ARTWORK CARD */
+.art-list { display: flex; flex-direction: column; gap: 10px; }
+.art-card {
+  background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 12px 14px; border-left: 4px solid var(--gray-light);
+}
+.art-card.s-good { border-left-color: var(--green); }
+.art-card.s-watch { border-left-color: var(--orange); }
+.art-card.s-damage { border-left-color: var(--red); }
+.art-card.s-repair { border-left-color: var(--purple); }
+.art-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.art-title { font-size: 0.95rem; font-weight: 700; color: var(--navy); }
+.art-no { font-size: 0.7rem; color: var(--gray); font-weight: 400; margin-left: 6px; }
+.art-meta { font-size: 0.74rem; color: var(--gray); margin-top: 4px; line-height: 1.6; }
+.art-meta .sep { margin: 0 6px; color: var(--gray-light); }
+.art-val { font-size: 0.78rem; color: var(--navy); font-weight: 700; margin-top: 4px; }
+
+/* STATUS BUTTONS */
+.status-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.st-btn {
+  padding: 6px 12px; border-radius: 16px; font-size: 0.74rem; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--gray-light); background: white; color: var(--gray);
+  transition: all 0.15s;
+}
+.st-btn.sel-good { background: var(--green); color: white; border-color: var(--green); }
+.st-btn.sel-watch { background: var(--orange); color: white; border-color: var(--orange); }
+.st-btn.sel-damage { background: var(--red); color: white; border-color: var(--red); }
+.st-btn.sel-repair { background: var(--purple); color: white; border-color: var(--purple); }
+.note-row { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+.note-row input {
+  flex: 1; padding: 6px 10px; border: 1px solid var(--gray-light);
+  border-radius: 6px; font-size: 0.78rem;
+}
+.last-check { font-size: 0.68rem; color: var(--gray); margin-top: 6px; }
+.last-check.never { color: var(--red); }
+
+/* DETAIL TOGGLE */
+.detail-toggle { font-size: 0.72rem; color: var(--blue); cursor: pointer; margin-top: 6px; display: inline-block; }
+.art-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gray-light); font-size: 0.74rem; color: var(--text); line-height: 1.7; }
+.art-detail.open { display: block; }
+
+/* PHOTO */
+.art-thumb { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; border: 1px solid var(--gray-light); cursor: pointer; flex-shrink: 0; background: var(--bg); }
+.art-head-left { display: flex; gap: 10px; align-items: flex-start; }
+.photo-preview { margin-top: 8px; }
+.photo-preview img { max-width: 120px; max-height: 120px; border-radius: 6px; border: 1px solid var(--gray-light); display: block; }
+.photo-actions { display: flex; gap: 8px; margin-top: 6px; align-items: center; }
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 95%; max-height: 90%; border-radius: 8px; }
+.lightbox .close-x { position: absolute; top: 16px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
+
+/* MODAL */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: white; border-radius: 12px; padding: 20px; width: 100%;
+  max-width: 460px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.modal h3 { font-size: 1rem; color: var(--navy); margin-bottom: 14px; border-bottom: 2px solid var(--gold); padding-bottom: 8px; }
+.form-row { margin-bottom: 10px; }
+.form-row label { display: block; font-size: 0.76rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.form-row input, .form-row select, .form-row textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--gray-light);
+  border-radius: 6px; font-size: 0.85rem; font-family: inherit;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+.empty { text-align: center; color: var(--gray); padding: 30px; font-size: 0.85rem; }
+
+/* CSV PANEL */
+.csv-panel { display:none; background:white; border-radius:8px; padding:14px; box-shadow:var(--shadow); margin-bottom:14px; }
+.csv-panel.open { display:block; }
+.csv-panel textarea { width:100%; min-height:120px; font-family:monospace; font-size:0.75rem; padding:8px; border:1px solid var(--gray-light); border-radius:6px; }
+.csv-panel .hint { font-size:0.72rem; color:var(--gray); margin:8px 0; line-height:1.6; }
+/* ===== PASSPHRASE GATE ===== */
+#gate {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+#gate-box {
+  background: var(--white); border-radius: 12px; padding: 32px 24px;
+  width: 100%; max-width: 360px; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3); border-top: 4px solid var(--gold);
+}
+#gate-box .gate-logo { font-size: 2rem; margin-bottom: 8px; }
+#gate-box h1 { font-size: 1.1rem; color: var(--navy); margin-bottom: 4px; }
+#gate-box h1 span { color: var(--gold); }
+#gate-box p { font-size: 0.78rem; color: var(--gray); margin-bottom: 20px; }
+#gate-box input {
+  width: 100%; padding: 11px 12px; border: 1px solid var(--gray-light);
+  border-radius: 6px; font-size: 0.95rem; text-align: center; margin-bottom: 12px;
+}
+#gate-box input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,39,68,0.1); }
+#gate-box button {
+  width: 100%; padding: 11px; background: var(--navy); color: white;
+  border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+#gate-box button:hover { background: var(--navy-light); }
+#gate-error { color: var(--red); font-size: 0.78rem; margin-top: 10px; min-height: 18px; }
+body.locked { overflow: hidden; }
+body.locked #app-root { display: none; }
 </style>
 </head>
-<body>
+<body class="locked">
 
-<!-- HOME -->
-<div id="home-screen" class="screen active">
-  <div class="home-header">
-    <div class="home-title">天海の城</div>
-    <div class="home-sub">日常運営管理表</div>
-    <div class="home-date" id="home-date"></div>
-  </div>
-  <div class="home-actions">
-    <button class="action-btn" onclick="openDash()">📊 ダッシュボード</button>
-    <button class="action-btn" onclick="openSummary()">📋 今日のまとめ</button>
-    <button class="action-btn gold" onclick="openManager()">👑 管理者</button>
-  </div>
-  <div class="home-bottom-row">
-    <button class="action-btn" onclick="openSettings()">⚙ 設定</button>
-    <div class="sheets-indicator" id="sheets-indicator"></div>
-  </div>
-  <div class="home-grid">
-    <div class="form-card" id="card-1" onclick="openForm(1)"><span class="card-num">様式1</span><span class="card-icon">🌅</span><span class="card-title">毎日開館前点検表</span><span class="card-status" id="cst-1"></span></div>
-    <div class="form-card" id="card-2" onclick="openForm(2)"><span class="card-num">様式2</span><span class="card-icon">🌙</span><span class="card-title">毎日閉館時点検表</span><span class="card-status" id="cst-2"></span></div>
-    <div class="form-card" id="card-3" onclick="openForm(3)"><span class="card-num">様式3</span><span class="card-icon">🛏</span><span class="card-title">客室最終点検表</span><span class="card-status" id="cst-3"></span></div>
-    <div class="form-card" id="card-4" onclick="openForm(4)"><span class="card-num">様式4</span><span class="card-icon">🎨</span><span class="card-title">美術館温湿度・展示品状態記録</span><span class="card-status" id="cst-4"></span></div>
-    <div class="form-card" id="card-5" onclick="openForm(5)"><span class="card-num">様式5</span><span class="card-icon">🌿</span><span class="card-title">植物管理記録表</span><span class="card-status" id="cst-5"></span></div>
-    <div class="form-card" id="card-6" onclick="openForm(6)"><span class="card-num">様式6</span><span class="card-icon">🔧</span><span class="card-title">修理申請・検収表</span><span class="card-status" id="cst-6"></span></div>
-    <div class="form-card" id="card-7" onclick="openForm(7)"><span class="card-num">様式7</span><span class="card-icon">👤</span><span class="card-title">顧客接遇登録表</span><span class="card-status" id="cst-7"></span></div>
-    <div class="form-card" id="card-8" onclick="openForm(8)"><span class="card-num">様式8</span><span class="card-icon">🎁</span><span class="card-title">無料接遇・割引承認表</span><span class="card-status" id="cst-8"></span></div>
-    <div class="form-card" id="card-9" onclick="openForm(9)"><span class="card-num">様式9</span><span class="card-icon">🌀</span><span class="card-title">台風防災点検表</span><span class="card-status" id="cst-9"></span></div>
-    <div class="form-card" id="card-10" onclick="openForm(10)"><span class="card-num">様式10</span><span class="card-icon">🚨</span><span class="card-title">事故・苦情・異常報告書</span><span class="card-status" id="cst-10"></span></div>
+<!-- ===== PASSPHRASE GATE ===== -->
+<div id="gate">
+  <div id="gate-box">
+    <div class="gate-logo">🖼️</div>
+    <h1>天海の城 <span>絵画管理</span></h1>
+    <p>合言葉を入力してください</p>
+    <input type="password" id="gate-input" placeholder="合言葉" autocomplete="off">
+    <button onclick="checkGate()">入室する</button>
+    <div id="gate-error"></div>
   </div>
 </div>
 
-<!-- FORM -->
-<div id="form-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goHome()">← ホーム</button>
-    <div class="fh-title" id="fh-title"></div>
-    <button class="btn-sm" onclick="openHistory()">📅 履歴</button>
-    <button class="btn-sm" onclick="window.print()">🖨</button>
-    <button class="btn-sm" onclick="clearDraft()">🗑</button>
-  </div>
-  <div class="status-bar">
-    <span id="status-msg">入力してください</span>
-    <span id="status-badge"></span>
-  </div>
-  <div class="form-body" id="form-body"></div>
-  <div class="save-footer">
-    <button class="save-btn" onclick="saveRecord()">💾 今日の記録を保存</button>
-    <div class="save-msg" id="save-msg"></div>
-  </div>
-</div>
+<div id="app-root">
 
-<!-- DASHBOARD -->
-<div id="dash-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goHome()">← ホーム</button>
-    <div class="fh-title" style="color:#fff">📊 ダッシュボード</div>
-  </div>
-  <div class="form-body" id="dash-body"></div>
-</div>
-
-<!-- SUMMARY -->
-<div id="summary-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goHome()">← ホーム</button>
-    <div class="fh-title" id="summary-title" style="color:#fff">📋 今日のまとめ</div>
-  </div>
-  <div class="form-body" id="summary-body"></div>
-</div>
-
-<!-- HISTORY -->
-<div id="hist-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goFormFromHist()">← 戻る</button>
-    <div class="fh-title" id="hist-title" style="color:#fff"></div>
-  </div>
-  <div class="form-body" id="hist-body"></div>
-</div>
-
-<!-- SETTINGS -->
-<div id="settings-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goHome()">← ホーム</button>
-    <div class="fh-title" style="color:#fff">⚙ 設定</div>
-  </div>
-  <div class="form-body">
-    <div class="settings-section">
-      <div class="settings-head">👑 管理者PIN</div>
-      <div class="settings-row">
-        <div class="settings-lbl">管理者パネルのPINコード</div>
-        <div class="settings-sub">管理者パネルを開く際に使用する4桁の数字（初期値：0000）</div>
-        <input class="settings-inp" type="number" id="inp-pin" placeholder="例：1234" maxlength="4">
-      </div>
+<div id="header">
+  <div id="header-top">
+    <div>
+      <h1>天海の城 <span>絵画管理</span></h1>
+      <div id="header-sub">作品台帳・状態点検</div>
     </div>
-    <div class="settings-section">
-      <div class="settings-head">📊 Google スプレッドシート連携</div>
-      <div class="settings-row">
-        <div class="settings-lbl">Apps Script URL</div>
-        <div class="settings-sub">Googleスプレッドシートと連携するためのURLを入力してください。</div>
-        <input class="settings-inp" type="url" id="inp-url" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
-      </div>
-      <div class="settings-row">
-        <div class="settings-lbl">📋 設定手順</div>
-        <div class="settings-sub" style="line-height:1.8">
-          1. Googleスプレッドシートを新規作成<br>
-          2. 「拡張機能」→「Apps Script」を開く<br>
-          3. 下のボタンでスクリプトをコピーして貼り付け<br>
-          4. 「デプロイ」→「新しいデプロイ」→種類「ウェブアプリ」<br>
-          5. 「アクセスできるユーザー」を「全員」に設定してデプロイ<br>
-          6. 表示されたURLをコピーして上の欄に貼り付け
+    <button class="btn btn-gold" onclick="openAdd()">＋ 作品登録</button>
+  </div>
+</div>
+
+<div id="main">
+
+  <div class="summary-strip" id="summary"></div>
+
+  <div class="tab-bar">
+    <div class="tab-btn active" id="tab-display" onclick="switchTab('display')">🖼️ 展示中<span class="cnt" id="cnt-display"></span></div>
+    <div class="tab-btn" id="tab-storage" onclick="switchTab('storage')">📦 倉庫<span class="cnt" id="cnt-storage"></span></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="作品名・作者・番号で検索" oninput="render()">
+    <button class="btn btn-ghost btn-sm" onclick="toggleCsv()">CSV取込/書出</button>
+  </div>
+
+  <div class="csv-panel" id="csv-panel">
+    <div class="hint">
+      ① 書き出し：現在の全作品をCSVで出力します（バックアップや一括編集に）。<br>
+      ② 取り込み：下の欄にCSVを貼り付けて取込。1行目は見出し（作品番号,作品名,作者,技法,サイズ,評価額,取得日,取得元,設置場所,備考）。設置場所は「展示中」または「倉庫」。
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-navy btn-sm" onclick="exportCsv()">CSV書き出し</button>
+      <button class="btn btn-gold btn-sm" onclick="importCsv()">貼り付けて取込</button>
+      <button class="btn btn-sm" style="background:var(--red);color:white" onclick="resetAll()">全データ削除</button>
+    </div>
+    <div style="margin-bottom:10px;padding:10px;background:var(--bg);border-radius:6px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--navy);margin-bottom:6px">▼ ファイルから直接取り込む（おすすめ・確実）</div>
+      <input type="file" id="csv-file" accept=".csv,text/csv" onchange="importCsvFile(event)" style="font-size:0.78rem">
+    </div>
+    <textarea id="csv-text" placeholder="ここにCSVを貼り付け..."></textarea>
+  </div>
+
+  <div class="art-list" id="art-list"></div>
+
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">作品登録</h3>
+    <input type="hidden" id="f-id">
+    <div class="form-grid">
+      <div class="form-row"><label>作品番号</label><input id="f-no" placeholder="例 P-001"></div>
+      <div class="form-row"><label>設置場所</label><select id="f-place"><option>展示中</option><option>倉庫</option></select></div>
+    </div>
+    <div class="form-row"><label>作品名</label><input id="f-title" placeholder="例 朝の海"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>作者</label><input id="f-artist" placeholder="例 山田太郎"></div>
+      <div class="form-row"><label>技法</label><select id="f-tech">
+        <option>油彩</option><option>水彩</option><option>アクリル</option><option>版画</option>
+        <option>日本画</option><option>素描</option><option>その他</option></select></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>サイズ</label><input id="f-size" placeholder="例 F10 (53×46cm)"></div>
+      <div class="form-row"><label>評価額(円)</label><input id="f-value" type="number" placeholder="例 300000"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>取得日</label><input id="f-date" type="date"></div>
+      <div class="form-row"><label>取得元</label><input id="f-source" placeholder="例 ○○画廊"></div>
+    </div>
+    <div class="form-row">
+      <label>現状写真</label>
+      <input type="file" id="f-photo" accept="image/*" onchange="onPhotoPick(event)" style="font-size:0.8rem">
+      <div class="photo-preview" id="photo-preview" style="display:none">
+        <img id="photo-preview-img" src="" alt="">
+        <div class="photo-actions">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removePhoto()">写真を削除</button>
         </div>
-        <button class="settings-btn" onclick="copyScript()" style="margin-top:4px">📋 Apps Scriptコードをコピー</button>
       </div>
     </div>
-    <div class="settings-section">
-      <div class="settings-head">🗄 データ管理</div>
-      <div class="settings-row">
-        <button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button>
-      </div>
-      <div class="settings-row">
-        <button class="settings-btn red" onclick="clearAllData()">🗑 全データを削除（注意）</button>
-      </div>
-    </div>
-    <div style="padding:0 0 16px">
-      <button class="settings-btn" onclick="saveSettings()">✅ 設定を保存</button>
+    <div class="form-row"><label>備考</label><textarea id="f-memo" rows="2" placeholder="額装の状態、来歴など"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" id="modal-delete" style="background:var(--red);color:white;display:none;margin-right:auto" onclick="deleteArt()">削除</button>
+      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-navy" id="modal-save" onclick="saveArt()">保存</button>
     </div>
   </div>
 </div>
 
-<!-- MANAGER -->
-<div id="manager-screen" class="screen">
-  <div class="form-header">
-    <button class="btn-sm" onclick="goHome()">← ホーム</button>
-    <div class="fh-title" style="color:#fff">👑 管理者パネル</div>
-    <button class="btn-sm" onclick="exportCSV()">📥 CSV</button>
-  </div>
-  <div class="form-body" id="manager-body"></div>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="close-x">×</span>
+  <img id="lightbox-img" src="" alt="">
 </div>
+
+</div><!-- /app-root -->
 
 <script>
-// ===== SETTINGS =====
-var SETTINGS = {pin:'0000', scriptUrl:''};
-try {
-  var _ss = localStorage.getItem('tenkai_settings');
-  if (_ss) { var _sp = JSON.parse(_ss); if (_sp) SETTINGS = _sp; }
-  if (!SETTINGS.pin) SETTINGS.pin = '0000';
-} catch(e) {}
-
-function saveSettings() {
-  SETTINGS.pin = document.getElementById('inp-pin').value || '0000';
-  SETTINGS.scriptUrl = document.getElementById('inp-url').value || '';
-  try { localStorage.setItem('tenkai_settings', JSON.stringify(SETTINGS)); } catch(e) {}
-  alert('設定を保存しました');
-  updateSheetsIndicator();
+// ===== PASSPHRASE GATE =====
+const PASSPHRASE = "tenkai2026";  // ← ここを好きな合言葉に変更してください
+const GATE_KEY = "kaiga_gate_ok";
+function checkGate() {
+  const val = document.getElementById('gate-input').value.trim();
+  if (val === PASSPHRASE) {
+    sessionStorage.setItem(GATE_KEY, "1");
+    unlockApp();
+  } else {
+    document.getElementById('gate-error').textContent = "合言葉が違います";
+    document.getElementById('gate-input').value = "";
+  }
+}
+function unlockApp() {
+  document.body.classList.remove('locked');
+  const gate = document.getElementById('gate');
+  if (gate) gate.style.display = 'none';
+}
+if (sessionStorage.getItem(GATE_KEY) === "1") {
+  unlockApp();
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('gate-input');
+    if (inp) {
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkGate(); });
+      inp.focus();
+    }
+  });
 }
 
-function updateSheetsIndicator() {
-  var el = document.getElementById('sheets-indicator');
-  if (!el) return;
-  if (SETTINGS.scriptUrl) {
-    el.innerHTML = '<span class="sheets-ok">📊 Sheets接続済</span>';
-  } else {
-    el.innerHTML = '<span class="sheets-no">📊 Sheets未設定</span>';
+// ===== STORAGE =====
+const KEY = 'tenkai_kaiga';
+function loadAll() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+function saveAll(arr) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(arr));
+    return true;
+  } catch(e) {
+    alert('保存できませんでした。写真の枚数が多すぎて容量上限に達した可能性があります。\n不要な写真を削除するか、画像なしで運用してください。');
+    return false;
   }
 }
 
-var APPS_SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = ss.getSheetByName("記録") || ss.insertSheet("記録");\n    if (sheet.getLastRow() === 0) {\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,9).setFontWeight("bold");\n    }\n    var date = e.parameter.date || "";\n    var formId = e.parameter.formId || "";\n    var formName = e.parameter.formName || "";\n    var rec = JSON.parse(e.parameter.record || "{}");\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(v); }\n      else if (v && ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済"].indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), date, formId, formName, checker, okCount, ngCount, ngItems.join("/"), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
+// ===== PHOTO (圧縮して保持) =====
+let pendingPhoto = undefined;  // undefined=変更なし, ''=削除, 'data:...'=新規
+function onPhotoPick(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // 長辺640pxに縮小してJPEG圧縮
+      const max = 640;
+      let w = img.width, h = img.height;
+      if (w > h && w > max) { h = h*max/w; w = max; }
+      else if (h >= w && h > max) { w = w*max/h; h = max; }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = cv.toDataURL('image/jpeg', 0.7);
+      pendingPhoto = dataUrl;
+      showPhotoPreview(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function showPhotoPreview(src) {
+  const box = document.getElementById('photo-preview');
+  if (src) {
+    document.getElementById('photo-preview-img').src = src;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+function removePhoto() {
+  pendingPhoto = '';
+  document.getElementById('f-photo').value = '';
+  showPhotoPreview('');
+}
+function openLightbox(id) {
+  const a = loadAll().find(x=>x.id===id);
+  if (!a || !a.photo) return;
+  document.getElementById('lightbox-img').src = a.photo;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
 
-function copyScript() {
-  var code = APPS_SCRIPT_CODE.replace(/\\n/g, '\n');
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).then(function() {
-      alert('スクリプトをコピーしました！\nGoogle Apps Scriptに貼り付けてください。');
+// ===== SAMPLE DATA (初回のみ) =====
+function seedIfEmpty() {
+  if (localStorage.getItem(KEY)) return;
+  const sample = [
+    { id:'a1', no:'P-001', title:'朝の海', artist:'川村 海斗', tech:'油彩', size:'F20 (73×60cm)',
+      value:480000, date:'2019-04-12', source:'長崎○○画廊', place:'展示中',
+      memo:'玄関ホール正面に展示。額装良好。', status:'良', statusNote:'', lastCheck:'2026-05-20' },
+    { id:'a2', no:'P-002', title:'西海夕景', artist:'森田 律子', tech:'水彩', size:'F8 (45×38cm)',
+      value:150000, date:'2020-09-03', source:'作家直接購入', place:'展示中',
+      memo:'2階廊下。日差しが当たるため退色注意。', status:'要注意', statusNote:'右下にわずかな退色', lastCheck:'2026-05-20' },
+    { id:'a3', no:'P-003', title:'椿', artist:'大島 信一', tech:'日本画', size:'色紙 (27×24cm)',
+      value:90000, date:'2018-01-20', source:'寄贈（前オーナー）', place:'展示中',
+      memo:'ロビー側壁。', status:'良', statusNote:'', lastCheck:'2026-04-15' },
+    { id:'a4', no:'S-101', title:'港の灯', artist:'川村 海斗', tech:'油彩', size:'F30 (91×72cm)',
+      value:620000, date:'2017-11-08', source:'長崎○○画廊', place:'倉庫',
+      memo:'倉庫A棚。額の角に擦れあり。', status:'損傷', statusNote:'額縁右上角に剥離', lastCheck:'2026-03-10' },
+    { id:'a5', no:'S-102', title:'無題（抽象）', artist:'宮本 あや', tech:'アクリル', size:'M15 (65×50cm)',
+      value:210000, date:'2021-06-30', source:'美術市', place:'倉庫',
+      memo:'倉庫B棚。展示候補。', status:'要修復', statusNote:'キャンバス左端に緩みあり張り直し要', lastCheck:'2026-02-01' },
+  ];
+  saveAll(sample);
+}
+
+// ===== STATE =====
+let currentTab = 'display';
+const STATUSES = [
+  { key:'良',    cls:'good',   sel:'sel-good' },
+  { key:'要注意', cls:'watch',  sel:'sel-watch' },
+  { key:'損傷',   cls:'damage', sel:'sel-damage' },
+  { key:'要修復', cls:'repair', sel:'sel-repair' },
+];
+function statusCls(s){ const f=STATUSES.find(x=>x.key===s); return f?f.cls:''; }
+
+// ===== TABS =====
+function switchTab(t) {
+  currentTab = t;
+  document.getElementById('tab-display').classList.toggle('active', t==='display');
+  document.getElementById('tab-storage').classList.toggle('active', t==='storage');
+  render();
+}
+
+// ===== RENDER =====
+function render() {
+  const all = loadAll();
+  const q = (document.getElementById('search').value||'').trim().toLowerCase();
+  const placeWanted = currentTab==='display' ? '展示中' : '倉庫';
+
+  document.getElementById('cnt-display').textContent = '('+all.filter(a=>a.place==='展示中').length+')';
+  document.getElementById('cnt-storage').textContent = '('+all.filter(a=>a.place==='倉庫').length+')';
+
+  // summary by status (current tab)
+  const inTab = all.filter(a=>a.place===placeWanted);
+  const counts = {};
+  STATUSES.forEach(s=>counts[s.key]=0);
+  inTab.forEach(a=>{ if(counts[a.status]!==undefined) counts[a.status]++; });
+  document.getElementById('summary').innerHTML = STATUSES.map(s=>`
+    <div class="sum-box" style="border-top-color:var(--${s.cls==='good'?'green':s.cls==='watch'?'orange':s.cls==='damage'?'red':'purple'})">
+      <div class="n" style="color:var(--${s.cls==='good'?'green':s.cls==='watch'?'orange':s.cls==='damage'?'red':'purple'})">${counts[s.key]}</div>
+      <div class="l">${s.key}</div>
+    </div>`).join('') +
+    `<div class="sum-box"><div class="n" style="color:var(--navy)">${inTab.length}</div><div class="l">合計</div></div>`;
+
+  let list = inTab;
+  if (q) list = list.filter(a =>
+    (a.title||'').toLowerCase().includes(q) ||
+    (a.artist||'').toLowerCase().includes(q) ||
+    (a.no||'').toLowerCase().includes(q));
+
+  const el = document.getElementById('art-list');
+  if (!list.length) { el.innerHTML = '<div class="empty">該当する作品がありません</div>'; return; }
+
+  list.sort((a,b)=>(a.no||'').localeCompare(b.no||''));
+  el.innerHTML = list.map(a => {
+    const cls = statusCls(a.status);
+    const neverChecked = !a.lastCheck;
+    return `
+    <div class="art-card s-${cls}">
+      <div class="art-head">
+        <div class="art-head-left">
+          ${a.photo
+            ? `<img class="art-thumb" src="${a.photo}" onclick="openLightbox('${a.id}')" alt="">`
+            : `<div class="art-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:1.4rem">🖼️</div>`}
+          <div>
+            <span class="art-title">${esc(a.title)||'（無題）'}<span class="art-no">${esc(a.no)||''}</span></span>
+            <div class="art-meta">${esc(a.artist)||'作者不明'}<span class="sep">|</span>${esc(a.tech)||''}<span class="sep">|</span>${esc(a.size)||''}</div>
+            ${a.value?`<div class="art-val">評価額 ¥${Number(a.value).toLocaleString()}</div>`:''}
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${a.id}')">編集</button>
+      </div>
+
+      <div class="status-row">
+        ${STATUSES.map(s=>`<div class="st-btn ${a.status===s.key?s.sel:''}" onclick="setStatus('${a.id}','${s.key}')">${s.key}</div>`).join('')}
+      </div>
+      <div class="note-row">
+        <input placeholder="状態メモ（一言）" value="${esc(a.statusNote)||''}" onchange="setNote('${a.id}', this.value)">
+      </div>
+      <div class="last-check ${neverChecked?'never':''}">${neverChecked?'未点検':'最終点検 '+a.lastCheck}</div>
+
+      <span class="detail-toggle" onclick="toggleDetail('${a.id}')">詳細を表示 ▾</span>
+      <div class="art-detail" id="detail-${a.id}">
+        取得日：${esc(a.date)||'—'}<br>
+        取得元：${esc(a.source)||'—'}<br>
+        備考：${esc(a.memo)||'—'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function toggleDetail(id){ document.getElementById('detail-'+id).classList.toggle('open'); }
+
+// ===== STATUS / NOTE UPDATE =====
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function setStatus(id, st) {
+  const all = loadAll();
+  const a = all.find(x=>x.id===id); if(!a) return;
+  a.status = st; a.lastCheck = todayISO();
+  saveAll(all); render();
+}
+function setNote(id, val) {
+  const all = loadAll();
+  const a = all.find(x=>x.id===id); if(!a) return;
+  a.statusNote = val; a.lastCheck = todayISO();
+  saveAll(all);
+}
+
+// ===== ADD / EDIT =====
+function openAdd() {
+  document.getElementById('modal-title').textContent='作品登録';
+  ['f-id','f-no','f-title','f-artist','f-size','f-value','f-date','f-source','f-memo'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('f-place').value = currentTab==='storage'?'倉庫':'展示中';
+  document.getElementById('f-tech').value='油彩';
+  document.getElementById('modal-delete').style.display='none';
+  document.getElementById('f-photo').value='';
+  pendingPhoto = undefined;
+  showPhotoPreview('');
+  document.getElementById('modal').classList.add('open');
+}
+function openEdit(id) {
+  const a = loadAll().find(x=>x.id===id); if(!a) return;
+  document.getElementById('modal-title').textContent='作品を編集';
+  document.getElementById('f-id').value=a.id;
+  document.getElementById('f-no').value=a.no||'';
+  document.getElementById('f-title').value=a.title||'';
+  document.getElementById('f-artist').value=a.artist||'';
+  document.getElementById('f-tech').value=a.tech||'油彩';
+  document.getElementById('f-size').value=a.size||'';
+  document.getElementById('f-value').value=a.value||'';
+  document.getElementById('f-date').value=a.date||'';
+  document.getElementById('f-source').value=a.source||'';
+  document.getElementById('f-place').value=a.place||'展示中';
+  document.getElementById('f-memo').value=a.memo||'';
+  document.getElementById('modal-delete').style.display='inline-block';
+  document.getElementById('f-photo').value='';
+  pendingPhoto = undefined;
+  showPhotoPreview(a.photo||'');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function deleteArt() {
+  const id = document.getElementById('f-id').value;
+  if (!id) return;
+  const all = loadAll();
+  const a = all.find(x=>x.id===id);
+  if (!confirm('「'+((a&&a.title)||'この作品')+'」を削除します。よろしいですか？')) return;
+  saveAll(all.filter(x=>x.id!==id));
+  closeModal(); render();
+}
+function saveArt() {
+  const all = loadAll();
+  const id = document.getElementById('f-id').value;
+  const data = {
+    no: document.getElementById('f-no').value.trim(),
+    title: document.getElementById('f-title').value.trim(),
+    artist: document.getElementById('f-artist').value.trim(),
+    tech: document.getElementById('f-tech').value,
+    size: document.getElementById('f-size').value.trim(),
+    value: document.getElementById('f-value').value,
+    date: document.getElementById('f-date').value,
+    source: document.getElementById('f-source').value.trim(),
+    place: document.getElementById('f-place').value,
+    memo: document.getElementById('f-memo').value.trim(),
+  };
+  if (!data.title && !data.no) { alert('作品番号または作品名を入力してください'); return; }
+  if (id) {
+    const a = all.find(x=>x.id===id);
+    Object.assign(a, data);
+    if (pendingPhoto !== undefined) a.photo = pendingPhoto;  // '' なら削除、dataURLなら更新
+  } else {
+    const obj = Object.assign({ id:'a'+Date.now(), status:'良', statusNote:'', lastCheck:'' }, data);
+    if (pendingPhoto) obj.photo = pendingPhoto;
+    all.push(obj);
+  }
+  if (saveAll(all)) { closeModal(); render(); }
+}
+
+// ===== CSV =====
+function toggleCsv(){ document.getElementById('csv-panel').classList.toggle('open'); }
+function resetAll() {
+  const n = loadAll().length;
+  if (n===0) { alert('削除するデータがありません'); return; }
+  if (!confirm('登録されている全'+n+'件を削除します。よろしいですか？')) return;
+  if (!confirm('本当に削除してよいですか？この操作は取り消せません。')) return;
+  localStorage.removeItem(KEY);
+  render();
+  alert('全データを削除しました');
+}
+function exportCsv() {
+  const all = loadAll();
+  const head = ['作品番号','作品名','作者','技法','サイズ','評価額','取得日','取得元','設置場所','状態','状態メモ','最終点検','写真'];
+  const rows = all.map(a=>[a.no,a.title,a.artist,a.tech,a.size,a.value,a.date,a.source,a.place,a.status,a.statusNote,a.lastCheck,(a.photo?'あり':'')]
+    .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(','));
+  const csv = '\uFEFF'+[head.join(','),...rows].join('\r\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url; link.download='kaiga_'+todayISO()+'.csv'; link.click();
+  URL.revokeObjectURL(url);
+}
+function parseCsvLine(line){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(q){ if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"')q=true; else if(c===','){out.push(cur);cur='';} else cur+=c; }
+  }
+  out.push(cur); return out;
+}
+// CSV全体を行（レコード）配列に分割。クオート内の改行は行区切りにしない。
+function parseCsv(text){
+  text = text.replace(/^\uFEFF/,'');   // BOM除去
+  const rows=[]; let cur=''; let q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='""';i++;} else { q=false; cur+='"'; } }
+      else cur+=c;
+    } else {
+      if(c==='"'){ q=true; cur+='"'; }
+      else if(c==='\n'){ rows.push(cur); cur=''; }
+      else if(c==='\r'){ /* skip CR */ }
+      else cur+=c;
+    }
+  }
+  if(cur.trim()!=='') rows.push(cur);
+  return rows.filter(r=>r.trim()!=='');
+}
+function importCsv() {
+  const txt = document.getElementById('csv-text').value.trim();
+  if(!txt){ alert('CSVを貼り付けてください'); return; }
+  doImport(txt);
+}
+function importCsvFile(ev) {
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { doImport(e.target.result); ev.target.value=''; };
+  reader.onerror = () => alert('ファイルの読み込みに失敗しました');
+  reader.readAsText(file, 'UTF-8');
+}
+function doImport(txt) {
+  const lines = parseCsv(txt.trim());
+  if(lines.length<2){ alert('データ行がありません（認識した行数: '+lines.length+'）'); return; }
+  const all = loadAll();
+  let added=0;
+  for(let i=1;i<lines.length;i++){
+    const c = parseCsvLine(lines[i]);
+    if(c.length<2 || (!c[0] && !c[1])) continue;
+    all.push({
+      id:'a'+Date.now()+'_'+i, no:(c[0]||'').trim(), title:(c[1]||'').trim(),
+      artist:(c[2]||'').trim(), tech:(c[3]||'その他').trim(), size:(c[4]||'').trim(),
+      value:(c[5]||'').replace(/[^\d]/g,''), date:(c[6]||'').trim(), source:(c[7]||'').trim(),
+      place:((c[8]||'').includes('倉庫')?'倉庫':'展示中'),
+      memo:(c[9]||'').trim(),
+      status:'良', statusNote:'', lastCheck:''
     });
-  } else {
-    var ta = document.createElement('textarea');
-    ta.value = code;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    alert('スクリプトをコピーしました！\nGoogle Apps Scriptに貼り付けてください。');
+    added++;
   }
-}
-
-// ===== DATA =====
-var DB = {draft:{}};
-try {
-  var _s = localStorage.getItem('tenkai_v4');
-  if (_s) { var _p = JSON.parse(_s); if (_p && typeof _p === 'object') DB = _p; }
-  if (!DB.draft) DB.draft = {};
-} catch(e) {}
-function saveDB() { try { localStorage.setItem('tenkai_v4', JSON.stringify(DB)); } catch(e) {} }
-function p2(n) { return n < 10 ? '0'+n : ''+n; }
-function today() { var d = new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
-function fmtD(s) { return s ? s.replace(/-/g,'/') : ''; }
-function getDateKeys() { return Object.keys(DB).filter(function(k){ return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().reverse(); }
-function getDraft(fid) { return DB.draft[String(fid)] || {}; }
-function getRecord(fid, dateStr) { return (DB[dateStr] && DB[dateStr][String(fid)]) || {}; }
-function hasDraft(fid) { return Object.keys(getDraft(fid)).length > 0; }
-function hasRecord(fid, dateStr) { return Object.keys(getRecord(fid, dateStr || today())).length > 0; }
-function setField(fid, key, val) {
-  var f = String(fid); if (!DB.draft[f]) DB.draft[f] = {};
-  if (val !== null && val !== undefined && val !== '') DB.draft[f][key] = val;
-  else delete DB.draft[f][key];
-  saveDB(); updateStatusBar();
-}
-function delField(fid, key) { var f = String(fid); if (DB.draft[f]) delete DB.draft[f][key]; saveDB(); }
-
-var NG_VALS = ['異常','要改善','要対応','未完了','いいえ','あり','補充必要','固定必要','是正後可能','必要','虫害あり','範囲外','未撮影','交換必要','未実施','否認','S級緊急','S級','A級'];
-var WN_VALS = ['要修正','確認中','該当なし','変更','別途確認','A級重要','B級一般','C級改善','B級','C級'];
-var ALL_OPTS = ['正常','異常','良好','要改善','完了','未完了','はい','いいえ','なし','あり','撮影済','確認済','不要','範囲内','範囲外','実施','要対応','要修正','確認中','該当なし','未撮影','補充必要','固定必要','可能','是正後可能','必要','虫害あり','交換必要','可','否認','揃っている','承認','変更','実施済','取消','S級緊急','A級重要','B級一般','C級改善','S級','A級','B級','C級','不可','別途確認','通常料金','割引','無料','未実施','撮影不要'];
-function isOpt(v) { return ALL_OPTS.indexOf(v) >= 0; }
-function isNg(v) { return NG_VALS.indexOf(v) >= 0; }
-function oc(v) { if (NG_VALS.indexOf(v) >= 0) return 'sel-ng'; if (WN_VALS.indexOf(v) >= 0) return 'sel-warn'; return 'sel-ok'; }
-
-var cFid = null;
-var TITLES = {1:'毎日開館前点検表',2:'毎日閉館時点検表',3:'客室最終点検表',4:'美術館温湿度・展示品状態記録',5:'植物管理記録表',6:'修理申請・検収表',7:'顧客接遇登録表',8:'無料接遇・割引承認表',9:'台風防災点検表',10:'事故・苦情・異常報告書'};
-var ICONS = {1:'🌅',2:'🌙',3:'🛏',4:'🎨',5:'🌿',6:'🔧',7:'👤',8:'🎁',9:'🌀',10:'🚨'};
-
-function showScreen(id) {
-  var ss = ['home-screen','form-screen','dash-screen','summary-screen','hist-screen','settings-screen','manager-screen'];
-  for (var i = 0; i < ss.length; i++) document.getElementById(ss[i]).classList.remove('active');
-  document.getElementById(id).classList.add('active'); window.scrollTo(0,0);
-}
-function goHome() { showScreen('home-screen'); updateHomeCards(); }
-
-function openForm(id) {
-  cFid = id;
-  var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10];
-  document.getElementById('fh-title').textContent = '様式'+id+'　'+(TITLES[id]||'');
-  document.getElementById('form-body').innerHTML = fns[id] ? fns[id](id) : '';
-  var f = String(id);
-  if (!hasDraft(id) && hasRecord(id)) { DB.draft[f] = Object.assign({}, getRecord(id, today())); saveDB(); }
-  restoreForm(id, getDraft(id)); updateStatusBar(); showScreen('form-screen');
-}
-
-function updateStatusBar() {
-  if (!cFid) return;
-  var saved = hasRecord(cFid); var drafted = hasDraft(cFid);
-  var msg = document.getElementById('status-msg'); var badge = document.getElementById('status-badge');
-  if (saved) { msg.textContent = '本日の記録：'+fmtD(today()); badge.innerHTML = '<span class="badge-saved">✅ 保存済</span>'; }
-  else if (drafted) { msg.textContent = '入力中（未保存）'; badge.innerHTML = '<span class="badge-draft">🔄 下書き</span>'; }
-  else { msg.textContent = '未記入'; badge.innerHTML = ''; }
-}
-
-function saveRecord() {
-  if (!cFid) return;
-  var f = String(cFid); var t = today();
-  if (!DB[t]) DB[t] = {};
-  DB[t][f] = Object.assign({}, DB.draft[f] || {});
-  saveDB();
-  postToSheets(cFid, DB[t][f]);
-  document.getElementById('save-msg').textContent = '保存しました ✓';
-  setTimeout(function(){ document.getElementById('save-msg').textContent = ''; }, 2500);
-  updateStatusBar(); updateHomeCards();
-}
-
-function postToSheets(fid, record) {
-  var url = SETTINGS.scriptUrl; if (!url) return;
-  var params = [
-    'date='+encodeURIComponent(today()),
-    'formId='+encodeURIComponent(fid),
-    'formName='+encodeURIComponent(TITLES[fid]||''),
-    'record='+encodeURIComponent(JSON.stringify(record))
-  ].join('&');
-  try { var _img = new Image(); _img.src = url+'?'+params; } catch(e) {}
-}
-
-function clearDraft() {
-  if (!confirm('入力中の内容をクリアしますか？\n（保存済みの記録は残ります）')) return;
-  if (cFid) { DB.draft[String(cFid)] = {}; saveDB(); openForm(cFid); }
-}
-
-function restoreForm(id, data) {
-  var els = document.querySelectorAll('[data-key]');
-  for (var i = 0; i < els.length; i++) {
-    var el = els[i]; var key = el.getAttribute('data-key');
-    if (key.indexOf('f'+id+'_') !== 0) continue;
-    var val = data[key]; if (!val) continue;
-    var tn = el.tagName.toLowerCase();
-    if (tn === 'input' || tn === 'textarea') el.value = val;
-    else if (el.classList.contains('opt') && el.getAttribute('data-val') === val) el.classList.add(oc(val));
-  }
-  var togs = document.querySelectorAll('.opt[data-tog]');
-  for (var ti = 0; ti < togs.length; ti++) { var tkey = togs[ti].getAttribute('data-key'); if (data[tkey]) togs[ti].classList.add('sel-ok'); }
-}
-
-function updateHomeCards() {
-  var t = today(); var d = new Date();
-  document.getElementById('home-date').textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+'日月火水木金土'[d.getDay()]+'）';
-  for (var i = 1; i <= 10; i++) {
-    var card = document.getElementById('card-'+i); var cst = document.getElementById('cst-'+i);
-    var saved = hasRecord(i,t); var drafted = hasDraft(i);
-    card.classList.remove('saved','drafted');
-    if (saved) { card.classList.add('saved'); cst.textContent='✅保存'; cst.className='card-status st-saved'; }
-    else if (drafted) { card.classList.add('drafted'); cst.textContent='🔄下書'; cst.className='card-status st-draft'; }
-    else { cst.textContent=''; cst.className='card-status'; }
-  }
-}
-
-// ===== DASHBOARD =====
-function openDash() { renderDash(); showScreen('dash-screen'); }
-function renderDash() {
-  var t = today(); var past30 = [];
-  for (var d = 0; d < 30; d++) {
-    var dd = new Date(); dd.setDate(dd.getDate()-d);
-    past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate()));
-  }
-  var h = '<div class="dash-section"><div class="dash-sec-title">今日の点検状況</div>';
-  for (var i = 1; i <= 10; i++) {
-    var saved = hasRecord(i,t); var drafted = hasDraft(i);
-    var cls = saved ? 'sb-done' : (drafted ? 'sb-draft' : 'sb-empty');
-    var lbl = saved ? '✅ 保存済' : (drafted ? '🔄 下書き' : '⬜ 未実施');
-    h += '<div class="summary-row" onclick="openForm('+i+')">';
-    h += '<span class="sum-icon">'+ICONS[i]+'</span><span class="sum-name">様式'+i+'　'+TITLES[i]+'</span>';
-    h += '<span class="sum-badge '+cls+'">'+lbl+'</span></div>';
-  }
-  h += '</div><div class="dash-section"><div class="dash-sec-title">過去30日間　点検完了率</div>';
-  for (var fi = 1; fi <= 10; fi++) {
-    var cnt = 0;
-    for (var di = 0; di < past30.length; di++) { if (hasRecord(fi, past30[di])) cnt++; }
-    var pct = Math.round(cnt/30*100); var fc = pct>=80?'pf-hi':(pct>=50?'pf-mid':'pf-lo');
-    h += '<div class="prog-card"><div class="prog-name">'+ICONS[fi]+' 様式'+fi+'　'+TITLES[fi]+'</div>';
-    h += '<div class="prog-bar"><div class="prog-fill '+fc+'" style="width:'+pct+'%"></div></div>';
-    h += '<div class="prog-lbl"><span>'+cnt+'/30日</span><span>'+pct+'%</span></div>';
-    h += '<button class="stats-toggle" onclick="toggleStats(this,'+fi+')">📈 項目別統計</button>';
-    h += '<div class="stats-detail" id="st-'+fi+'"></div></div>';
-  }
-  h += '</div>';
-  var anoms = []; var recent7 = past30.slice(0,7);
-  for (var ri = 0; ri < recent7.length; ri++) {
-    var rD = recent7[ri]; if (!DB[rD]) continue;
-    for (var rfi = 1; rfi <= 10; rfi++) {
-      var rec = getRecord(rfi, rD); var rkeys = Object.keys(rec);
-      for (var ki = 0; ki < rkeys.length; ki++) { if (isNg(rec[rkeys[ki]])) anoms.push({date:rD,form:rfi,val:rec[rkeys[ki]]}); }
-    }
-  }
-  if (anoms.length > 0) {
-    h += '<div class="dash-section"><div class="dash-sec-title">⚠ 異常項目（直近7日間）</div>';
-    for (var ai = 0; ai < anoms.length; ai++) {
-      var an = anoms[ai];
-      h += '<div class="anomaly-card"><div class="anomaly-date">'+fmtD(an.date)+'　様式'+an.form+'</div>';
-      h += '<div class="anomaly-text">'+ICONS[an.form]+' '+TITLES[an.form]+'　→　'+an.val+'</div></div>';
-    }
-    h += '</div>';
-  }
-  document.getElementById('dash-body').innerHTML = h;
-}
-
-function toggleStats(btn, fid) {
-  var div = document.getElementById('st-'+fid); if (!div) return;
-  if (div.classList.contains('open')) { div.classList.remove('open'); btn.textContent='📈 項目別統計'; return; }
-  btn.textContent = '📈 閉じる'; div.classList.add('open');
-  var dkeys = getDateKeys();
-  if (dkeys.length === 0) { div.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:6px 0">記録がまだありません</p>'; return; }
-  var fCounts = {};
-  for (var di = 0; di < dkeys.length; di++) {
-    var rec = getRecord(fid, dkeys[di]); var keys = Object.keys(rec);
-    for (var ki = 0; ki < keys.length; ki++) {
-      var v = rec[keys[ki]]; if (!isOpt(v)) continue;
-      if (!fCounts[keys[ki]]) fCounts[keys[ki]] = {};
-      fCounts[keys[ki]][v] = (fCounts[keys[ki]][v] || 0) + 1;
-    }
-  }
-  var labels = extractLabels(fid); var skeys = Object.keys(fCounts);
-  if (skeys.length === 0) { div.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:6px 0">集計データなし</p>'; return; }
-  var h = '';
-  for (var si = 0; si < skeys.length; si++) {
-    var sk = skeys[si]; var counts = fCounts[sk]; var lbl = labels[sk] || sk.replace('f'+fid+'_','');
-    h += '<div class="stat-row"><span class="stat-lbl">'+lbl+'</span>';
-    var vkeys = Object.keys(counts);
-    for (var vi = 0; vi < vkeys.length; vi++) {
-      var vk = vkeys[vi]; var vc = isNg(vk) ? 'stat-ng' : (WN_VALS.indexOf(vk)>=0?'stat-warn':'stat-ok');
-      h += '<span class="'+vc+'">'+vk+':'+counts[vk]+'</span>';
-    }
-    h += '</div>';
-  }
-  div.innerHTML = h;
-}
-
-function extractLabels(fid) {
-  var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10];
-  var labels = {}; var tmp = document.createElement('div'); tmp.innerHTML = fns[fid](fid);
-  var items = tmp.querySelectorAll('.check-item');
-  for (var i = 0; i < items.length; i++) {
-    var lbl = items[i].querySelector('.check-lbl'); var opts = items[i].querySelectorAll('.opt:not([data-tog])');
-    if (lbl && opts.length > 0) { var key = opts[0].getAttribute('data-key'); if (key) labels[key] = lbl.textContent.trim(); }
-  }
-  return labels;
-}
-
-// ===== SUMMARY =====
-function openSummary() { renderSummary(); showScreen('summary-screen'); }
-function renderSummary() {
-  var t = today(); var d = new Date();
-  document.getElementById('summary-title').textContent = '📋 '+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
-  var h = '<div class="fcard"><div class="fcard-head h-def">本日の全様式状況</div>';
-  for (var i = 1; i <= 10; i++) {
-    var saved = hasRecord(i,t); var drafted = hasDraft(i);
-    var rec = getRecord(i,t); var ng=0; var total=0; var rkeys = Object.keys(rec);
-    for (var ki=0;ki<rkeys.length;ki++) { var v=rec[rkeys[ki]]; if(isOpt(v)){total++;if(isNg(v))ng++;} }
-    var cls = saved?'sb-done':(drafted?'sb-draft':'sb-empty');
-    var lbl = saved?'✅ 保存済':(drafted?'🔄 下書き':'⬜ 未実施');
-    h += '<div class="summary-row" onclick="openForm('+i+')">';
-    h += '<span class="sum-icon">'+ICONS[i]+'</span>';
-    h += '<span class="sum-name">様式'+i+'　'+TITLES[i];
-    if (saved && total > 0) h += '<span class="sum-sub">正常:'+(total-ng)+' / 異常:'+ng+'</span>';
-    h += '</span><span class="sum-badge '+cls+'">'+lbl+'</span></div>';
-  }
-  h += '</div>';
-  document.getElementById('summary-body').innerHTML = h;
-}
-
-// ===== HISTORY =====
-function openHistory() {
-  if (!cFid) return;
-  document.getElementById('hist-title').textContent = ICONS[cFid]+' 様式'+cFid+' 履歴';
-  renderHistList(cFid); showScreen('hist-screen');
-}
-function goFormFromHist() { if (cFid) openForm(cFid); }
-function renderHistList(fid) {
-  var dkeys = getDateKeys().filter(function(k){ return hasRecord(fid,k); });
-  var h = '';
-  if (dkeys.length === 0) {
-    h = '<p style="padding:24px;text-align:center;color:var(--muted)">まだ保存された記録がありません</p>';
-  } else {
-    for (var di = 0; di < dkeys.length; di++) {
-      var dk = dkeys[di]; var rec = getRecord(fid, dk);
-      var ngCnt = 0; var rvals = Object.keys(rec).map(function(k){ return rec[k]; });
-      for (var vi = 0; vi < rvals.length; vi++) { if (isNg(rvals[vi])) ngCnt++; }
-      h += '<div class="hist-item" onclick="viewRecord('+fid+',\''+dk+'\')">';
-      h += '<div><div class="hist-date">'+fmtD(dk)+'</div>';
-      if (ngCnt > 0) h += '<div class="hist-ng">⚠ 異常 '+ngCnt+' 件</div>';
-      else h += '<div class="hist-ok">✅ 異常なし</div>';
-      h += '</div><span style="color:var(--muted)">▶</span></div>';
-    }
-  }
-  document.getElementById('hist-body').innerHTML = h;
-}
-function viewRecord(fid, dateStr) {
-  var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10];
-  var body = document.getElementById('hist-body'); body.innerHTML = '';
-  var top = document.createElement('div'); top.style.cssText = 'padding:12px 14px;display:flex;align-items:center;gap:12px';
-  top.innerHTML = '<button class="btn-sm" style="background:var(--navy);color:#fff" onclick="renderHistList('+fid+')">← 一覧</button>'
-    + '<span style="font-size:14px;font-weight:700">'+fmtD(dateStr)+'の記録</span>';
-  body.appendChild(top);
-  var fd = document.createElement('div'); fd.style.cssText = 'padding:0 14px 80px'; fd.innerHTML = fns[fid](fid); body.appendChild(fd);
-  var rec = getRecord(fid, dateStr);
-  var els = fd.querySelectorAll('[data-key]');
-  for (var i = 0; i < els.length; i++) {
-    var el = els[i]; var key = el.getAttribute('data-key'); if (key.indexOf('f'+fid+'_') !== 0) continue;
-    var val = rec[key]; if (!val) continue; var tn = el.tagName.toLowerCase();
-    if (tn==='input'||tn==='textarea') { el.value=val; el.disabled=true; }
-    else if (el.classList.contains('opt') && el.getAttribute('data-val')===val) el.classList.add(oc(val));
-  }
-  var optBtns = fd.querySelectorAll('.opt');
-  for (var oi = 0; oi < optBtns.length; oi++) {
-    optBtns[oi].removeAttribute('onclick'); optBtns[oi].style.cursor = 'default';
-    var tkey = optBtns[oi].getAttribute('data-key'); if (rec[tkey]) optBtns[oi].classList.add('sel-ok');
-  }
-  window.scrollTo(0,0);
-}
-
-// ===== SETTINGS SCREEN =====
-function openSettings() {
-  document.getElementById('inp-pin').value = SETTINGS.pin || '';
-  document.getElementById('inp-url').value = SETTINGS.scriptUrl || '';
-  showScreen('settings-screen');
-}
-
-function clearAllData() {
-  if (!confirm('本当にすべてのデータを削除しますか？\nこの操作は取り消せません。')) return;
-  if (!confirm('最終確認：全データを削除します。よろしいですか？')) return;
-  DB = {draft:{}}; saveDB(); alert('削除しました'); goHome();
-}
-
-// ===== CSV EXPORT =====
-function exportCSV() {
-  var dkeys = getDateKeys().sort();
-  if (dkeys.length === 0) { alert('エクスポートするデータがありません'); return; }
-  var rows = [['日付','様式番号','様式名','フィールドキー','値']];
-  for (var di = 0; di < dkeys.length; di++) {
-    var dk = dkeys[di];
-    for (var fi = 1; fi <= 10; fi++) {
-      var rec = getRecord(fi, dk); if (Object.keys(rec).length === 0) continue;
-      var keys = Object.keys(rec);
-      for (var ki = 0; ki < keys.length; ki++) {
-        var val = rec[keys[ki]]; if (!val) continue;
-        rows.push([dk, fi, TITLES[fi], keys[ki].replace('f'+fi+'_',''), val]);
-      }
-    }
-  }
-  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-  var bom = '﻿';
-  var blob = new Blob([bom+csv], {type:'text/csv;charset=utf-8;'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href=url; a.download='tenkai_kanri_'+today()+'.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-// ===== MANAGER PANEL =====
-function openManager() {
-  var entered = prompt('管理者PINを入力してください');
-  if (entered === null) return;
-  if (entered !== (SETTINGS.pin || '0000')) { alert('PINが正しくありません'); return; }
-  renderManager(); showScreen('manager-screen');
-}
-
-function renderManager() {
-  var t = today(); var past30 = [];
-  for (var d = 0; d < 30; d++) {
-    var dd = new Date(); dd.setDate(dd.getDate()-d);
-    past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate()));
-  }
-  var todaySaved = 0; var todayNg = 0;
-  for (var fi = 1; fi <= 10; fi++) {
-    if (hasRecord(fi,t)) {
-      todaySaved++;
-      var rec0 = getRecord(fi,t); var rk0 = Object.keys(rec0);
-      for (var ki0 = 0; ki0 < rk0.length; ki0++) { if (isNg(rec0[rk0[ki0]])) todayNg++; }
-    }
-  }
-  var monthTotal = 0;
-  for (var di0 = 0; di0 < past30.length; di0++) {
-    for (var mfi = 1; mfi <= 10; mfi++) { if (hasRecord(mfi, past30[di0])) monthTotal++; }
-  }
-  var dkeys = getDateKeys();
-
-  var h = '<div class="mgr-stat-grid">';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--green)">'+todaySaved+'</div><div class="mgr-stat-lbl">今日の保存済み様式</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:'+(todayNg>0?'var(--red)':'var(--green)')+'">'+todayNg+'</div><div class="mgr-stat-lbl">今日の異常件数</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--navy)">'+monthTotal+'</div><div class="mgr-stat-lbl">過去30日の総点検数</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--gold)">'+dkeys.length+'</div><div class="mgr-stat-lbl">記録のある日数</div></div>';
-  h += '</div>';
-
-  h += '<div class="dash-section"><div class="dash-sec-title">本日（'+fmtD(t)+'）の点検状況</div>';
-  h += '<div style="overflow-x:auto"><table class="mgr-table"><thead><tr><th>様式</th><th>名称</th><th>状態</th><th>正常</th><th>異常</th></tr></thead><tbody>';
-  for (var i = 1; i <= 10; i++) {
-    var saved = hasRecord(i,t); var rec2 = getRecord(i,t);
-    var ok2 = 0; var ng2 = 0; var k2 = Object.keys(rec2);
-    for (var ki2 = 0; ki2 < k2.length; ki2++) { var v2=rec2[k2[ki2]]; if(isOpt(v2)){if(isNg(v2))ng2++;else ok2++;} }
-    var stBadge = saved ? '<span class="badge-ok">✅ 完了</span>' : '<span class="badge-no">未実施</span>';
-    h += '<tr><td>'+ICONS[i]+i+'</td><td style="text-align:left;font-size:11px">'+TITLES[i]+'</td><td>'+stBadge+'</td>';
-    h += '<td style="color:var(--green);font-weight:700">'+(saved?ok2:'-')+'</td>';
-    h += '<td>'+(saved&&ng2>0?('<span class="badge-ng">'+ng2+'</span>'):saved?'<span style="color:var(--green)">0</span>':'-')+'</td></tr>';
-  }
-  h += '</tbody></table></div></div>';
-
-  h += '<div class="dash-section"><div class="dash-sec-title">過去30日間　様式別完了状況</div>';
-  for (var pfi = 1; pfi <= 10; pfi++) {
-    var cnt = 0;
-    for (var pdi = 0; pdi < past30.length; pdi++) { if (hasRecord(pfi, past30[pdi])) cnt++; }
-    var pct = Math.round(cnt/30*100); var fc = pct>=80?'pf-hi':(pct>=50?'pf-mid':'pf-lo');
-    h += '<div class="prog-card"><div class="prog-name">'+ICONS[pfi]+' 様式'+pfi+'　'+TITLES[pfi]+'</div>';
-    h += '<div class="prog-bar"><div class="prog-fill '+fc+'" style="width:'+pct+'%"></div></div>';
-    h += '<div class="prog-lbl"><span>'+cnt+'/30日完了</span><span>達成率 '+pct+'%</span></div>';
-    h += '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px">';
-    for (var ci = past30.length-1; ci >= 0; ci--) {
-      var cD = past30[ci]; var done = hasRecord(pfi, cD); var dd2 = Number(cD.slice(8));
-      h += '<div title="'+fmtD(cD)+'" style="width:24px;height:24px;border-radius:5px;background:'+(done?'var(--green)':'#f0f0f0')+';display:flex;align-items:center;justify-content:center;font-size:9px;color:'+(done?'#fff':'#aaa')+'">'+dd2+'</div>';
-    }
-    h += '</div></div>';
-  }
-  h += '</div>';
-
-  var anoms2 = [];
-  for (var ari = 0; ari < past30.length; ari++) {
-    var arD = past30[ari]; if (!DB[arD]) continue;
-    for (var arfi = 1; arfi <= 10; arfi++) {
-      var arec = getRecord(arfi, arD); var arkeys = Object.keys(arec);
-      for (var arki = 0; arki < arkeys.length; arki++) {
-        if (isNg(arec[arkeys[arki]])) anoms2.push({date:arD,form:arfi,val:arec[arkeys[arki]]});
-      }
-    }
-  }
-  if (anoms2.length > 0) {
-    h += '<div class="dash-section"><div class="dash-sec-title">⚠ 異常記録（過去30日間）</div>';
-    for (var aai = 0; aai < anoms2.length; aai++) {
-      var aan = anoms2[aai];
-      h += '<div class="anomaly-card"><div class="anomaly-date">'+fmtD(aan.date)+'　様式'+aan.form+'</div>';
-      h += '<div class="anomaly-text">'+ICONS[aan.form]+' '+TITLES[aan.form]+'　→　'+aan.val+'</div></div>';
-    }
-    h += '</div>';
-  }
-
-  h += '<div style="padding:0 0 20px"><button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
-  document.getElementById('manager-body').innerHTML = h;
-}
-
-// ===== INTERACTION =====
-function onInp(el) { setField(cFid, el.getAttribute('data-key'), el.value); }
-function selectOpt(el) {
-  var key = el.getAttribute('data-key'); var val = el.getAttribute('data-val');
-  var btns = el.parentElement.querySelectorAll('.opt');
-  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('sel-ok','sel-ng','sel-warn');
-  el.classList.add(oc(val)); setField(cFid, key, val);
-}
-function toggleOpt(el) {
-  var key = el.getAttribute('data-key'); var f = String(cFid);
-  if (DB.draft[f] && DB.draft[f][key]) { el.classList.remove('sel-ok','sel-ng','sel-warn'); delField(cFid, key); }
-  else { el.classList.add('sel-ok'); setField(cFid, key, el.getAttribute('data-val')); }
-}
-function setToday(key) {
-  var d = new Date(); var s = d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
-  var el = document.querySelector('[data-key="'+key+'"]'); if (el) { el.value = s; setField(cFid, key, s); }
-}
-
-// ===== BUILDERS =====
-function gk(fid, id) { return 'f'+fid+'_'+id; }
-function mkOpts(fid, id, opts, style) {
-  var key = gk(fid,id); var h = '<div class="opts">';
-  for (var i = 0; i < opts.length; i++)
-    h += '<button class="opt" data-key="'+key+'" data-val="'+opts[i]+'" onclick="selectOpt(this)"'+(style?' style="'+style+'"':'')+'>'+opts[i]+'</button>';
-  return h+'</div>';
-}
-function mkTog(fid, id, val, style) {
-  return '<button class="opt" data-tog="1" data-key="'+gk(fid,id+'_'+val)+'" data-val="'+val+'" onclick="toggleOpt(this)"'+(style?' style="'+style+'"':'')+'>'+val+'</button>';
-}
-function mkFld(fid, id, label, type, ph) {
-  var key = gk(fid,id); var inp;
-  if (type==='date') inp = '<input class="field-inp" type="date" data-key="'+key+'" oninput="onInp(this)"><button class="today-btn" onclick="setToday(\''+key+'\')">今日</button>';
-  else if (type==='time') inp = '<input class="field-inp" type="time" data-key="'+key+'" oninput="onInp(this)">';
-  else inp = '<input class="field-inp" type="text" placeholder="'+(ph||'')+'" data-key="'+key+'" oninput="onInp(this)">';
-  return '<div class="field-row"><span class="field-lbl">'+label+'</span>'+inp+'</div>';
-}
-function mkTa(fid, id, label, rows) {
-  return '<div class="fcard" style="padding:14px 15px"><label class="note-lbl">'+label+'</label>'
-    +'<textarea class="note-ta" rows="'+(rows||3)+'" data-key="'+gk(fid,id)+'" oninput="onInp(this)" placeholder="記入してください"></textarea></div>';
-}
-function mkSig(fid, sigs) {
-  var h = '<div class="fcard"><div class="fcard-head h-def">署名・確認</div>';
-  for (var i = 0; i < sigs.length; i++)
-    h += '<div class="field-row"><span class="field-lbl">'+sigs[i]+'</span><input class="field-inp" type="text" data-key="'+gk(fid,'sig'+i)+'" oninput="onInp(this)" placeholder="署名"></div>';
-  return h+'</div>';
-}
-function mkSec(fid, label, cls, items) {
-  var h = '<div class="fcard"><div class="fcard-head '+cls+'">'+label+'</div>';
-  for (var i = 0; i < items.length; i++)
-    h += '<div class="check-item"><div class="check-lbl">'+items[i].t+'</div>'+mkOpts(fid,items[i].id,items[i].o)+'</div>';
-  return h+'</div>';
-}
-function mkHdr(fid, fields) {
-  var h = '<div class="fcard"><div class="fcard-head h-def">基本情報</div>';
-  for (var i = 0; i < fields.length; i++) h += mkFld(fid,fields[i][0],fields[i][1],fields[i][2],fields[i][3]);
-  return h+'</div>';
-}
-
-// ===== FORMS =====
-function form1(fid) {
-  var h = mkHdr(fid,[['date','日付','date'],['weather','天候','text','晴れ/曇り/雨'],['time','点検時間','time'],['checker','点検者','text'],['manager','当日責任者','text']]);
-  h += mkSec(fid,'🔒 安全','h-safety',[{id:'q01',t:'正面玄関、裏口、通用口は正常か',o:['正常','異常']},{id:'q02',t:'各区域の扉・窓は正常か',o:['正常','異常']},{id:'q03',t:'厨房の火気、ガス、電源は正常か',o:['正常','異常']},{id:'q04',t:'給湯設備は正常か',o:['正常','異常']},{id:'q05',t:'漏水、漏電、異臭はないか',o:['なし','あり']},{id:'q06',t:'消防通路は確保されているか',o:['はい','いいえ']},{id:'q07',t:'浴場・浴室床面に滑りやすい箇所はないか',o:['正常','異常']}]);
-  h += mkSec(fid,'✨ 品質','h-quality',[{id:'q08',t:'共用部の清掃状態',o:['良好','要改善']},{id:'q09',t:'トイレの清掃および備品',o:['良好','補充必要']},{id:'q10',t:'照明、空調、香り、音楽',o:['正常','異常']},{id:'q11',t:'美術館展示状態',o:['正常','異常']}]);
-  h += mkSec(fid,'⚙ 設備','h-facility',[{id:'q12',t:'ネットワーク、プロジェクター、音響',o:['正常','異常']},{id:'q13',t:'除湿機および排水',o:['正常','異常']},{id:'q14',t:'会議設備',o:['正常','異常']}]);
-  h += mkSec(fid,'📝 その他','h-other',[{id:'q15',t:'当日の特記事項',o:['なし','あり']},{id:'q16',t:'写真記録',o:['撮影済','撮影不要']}]);
-  h += mkTa(fid,'urgent','直ちに対応すべき事項',3);
-  h += mkSig(fid,['点検者署名','責任者確認']);
-  return h;
-}
-function form2(fid) {
-  var h = mkHdr(fid,[['date','日付','date'],['close','閉館時間','time'],['checker','点検者','text'],['final','最終確認者','text']]);
-  h += mkSec(fid,'🔐 施錠','h-security',[{id:'q01',t:'正面玄関、裏口、各通用口の施錠',o:['完了','異常']},{id:'q02',t:'客室ドアの施錠確認',o:['完了','異常']},{id:'q03',t:'美術館、事務室、倉庫の施錠',o:['完了','異常']}]);
-  h += mkSec(fid,'⚡ 電源','h-facility',[{id:'q04',t:'共用部電源の確認',o:['完了','異常']},{id:'q05',t:'厨房電源、ガス、火気確認',o:['完了','異常']}]);
-  h += mkSec(fid,'💧 空調・水回り','h-quality',[{id:'q06',t:'客室、共用部の空調確認',o:['完了','異常']},{id:'q07',t:'浴室、トイレ、厨房の漏水確認',o:['異常なし','異常あり']},{id:'q08',t:'除湿機の状態および排水確認',o:['完了','異常']}]);
-  h += mkSec(fid,'🏠 安全・防犯','h-safety',[{id:'q09',t:'防犯設備の設定',o:['完了','異常']},{id:'q10',t:'屋外家具・植木鉢・ゴミ箱・工具',o:['正常','固定必要']},{id:'q11',t:'台風・大雨・強風リスク',o:['なし','あり']},{id:'q12',t:'顧客の安全確認',o:['確認済','該当なし']},{id:'q13',t:'緊急連絡先確認',o:['はい','いいえ']}]);
-  h += mkTa(fid,'remaining','未完了事項',3);
-  h += mkSig(fid,['点検者署名','最終確認者署名']);
-  return h;
-}
-function form3(fid) {
-  var h = mkHdr(fid,[['date','日付','date'],['room','客室番号','text'],['guest','宿泊顧客名','text'],['checkin','入室予定','time'],['checker','点検者','text'],['final','最終確認者','text']]);
-  h += mkSec(fid,'🧹 清掃・寝具','h-quality',[{id:'q01',t:'床・机・窓台・ゴミ箱の清掃状態',o:['良好','要対応']},{id:'q02',t:'シーツ・布団カバー・枕カバーの整え方',o:['良好','交換必要']}]);
-  h += mkSec(fid,'🚿 浴室・トイレ','h-safety',[{id:'q03',t:'浴槽・シャワー・排水・異臭の有無',o:['良好','異常']},{id:'q04',t:'トイレ清掃・紙類・異臭の有無',o:['良好','補充必要']},{id:'q05',t:'給湯・出湯・水温・排水の状態',o:['正常','異常']}]);
-  h += mkSec(fid,'⚙ 設備・備品','h-facility',[{id:'q06',t:'冷暖房・リモコンの作動確認',o:['正常','異常']},{id:'q07',t:'全照明器具の点灯確認',o:['正常','異常']},{id:'q08',t:'施錠・開閉・窓・カーテンの状態',o:['正常','異常']},{id:'q09',t:'タオル・歯ブラシ・スリッパ・飲用水等',o:['揃っている','補充必要']}]);
-  h += mkSec(fid,'📱 通信・AV機器','h-quality',[{id:'q10',t:'Wi-Fi SSID表示・接続可否',o:['正常','異常']},{id:'q11',t:'通信速度・接続安定性',o:['正常','異常']},{id:'q12',t:'テレビ本体（電源・映像・音声・リモコン）',o:['正常','異常']},{id:'q13',t:'テレビネット機能（YouTube等）',o:['正常','異常']}]);
-  h += mkSec(fid,'🔒 安全・最終確認','h-security',[{id:'q14',t:'電源・コンセント・滑り・破損の有無',o:['正常','異常']},{id:'q15',t:'異臭・湿気臭・煙草臭の有無',o:['なし','あり']},{id:'q16',t:'特別要望（VIP・アレルギー等）対応確認',o:['なし','あり']},{id:'q17',t:'入室可否',o:['可能','是正後可能']}]);
-  h += mkTa(fid,'note','異常・特記事項',3);
-  h += mkSig(fid,['点検者署名','最終確認者署名']);
-  return h;
-}
-function form4(fid) {
-  var h = mkHdr(fid,[['date','日付','date'],['checker','点検者','text'],['weather','天候','text']]);
-  var zones = [{id:'am1',lb:'午前 展示室1'},{id:'am2',lb:'午前 展示室2'},{id:'pm1',lb:'午後 展示室1'},{id:'pm2',lb:'午後 展示室2'}];
-  var tr = '';
-  for (var zi = 0; zi < zones.length; zi++) {
-    var z = zones[zi];
-    tr += '<tr><td style="text-align:left">'+z.lb+'</td><td><input class="tiny-inp" type="number" placeholder="℃" data-key="'+gk(fid,'tmp_'+z.id)+'" oninput="onInp(this)"></td><td><input class="tiny-inp" type="number" placeholder="%" data-key="'+gk(fid,'hum_'+z.id)+'" oninput="onInp(this)"></td><td>'+mkOpts(fid,'rng_'+z.id,['範囲内','範囲外'],'padding:4px 9px;font-size:11px')+'</td></tr>';
-  }
-  h += '<div class="fcard"><div class="fcard-head h-art">温湿度記録（目標：温度20〜24℃ / 湿度45〜55%）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">区域</th><th>温度(℃)</th><th>湿度(%)</th><th>目標範囲</th></tr></thead><tbody>'+tr+'</tbody></table></div></div>';
-  h += '<div class="fcard"><div class="fcard-head h-art">展示品状態確認</div>';
-  for (var an = 1; an <= 4; an++) {
-    h += '<div class="check-item" style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><input class="tiny-inp" type="text" placeholder="番号" data-key="'+gk(fid,'art_no_'+an)+'" oninput="onInp(this)" style="width:60px"><input class="field-inp" type="text" placeholder="作品名" data-key="'+gk(fid,'art_nm_'+an)+'" oninput="onInp(this)" style="min-width:90px">'+mkOpts(fid,'art_st_'+an,['正常','異常'],'padding:4px 10px;font-size:11px')+mkOpts(fid,'art_ph_'+an,['撮影済','なし'],'padding:4px 9px;font-size:11px')+'</div>';
-  }
-  var ex = [{id:'bugs',t:'虫害確認',o:['異常なし','虫害あり']},{id:'mold',t:'カビ・水濡れ・変色',o:['なし','あり']},{id:'light',t:'照明異常',o:['なし','あり']},{id:'touch',t:'顧客接触リスク',o:['なし','あり']}];
-  for (var ei = 0; ei < ex.length; ei++) h += '<div class="check-item"><div class="check-lbl">'+ex[ei].t+'</div>'+mkOpts(fid,ex[ei].id,ex[ei].o)+'</div>';
-  h += '</div>';
-  h += mkTa(fid,'action','対応必要事項',3);
-  h += mkSig(fid,['点検者署名','責任者確認']);
-  return h;
-}
-function form5(fid) {
-  var h = mkHdr(fid,[['month','対象月','text','例：2026年6月'],['manager','環境美化責任者','text']]);
-  var areas = ['屋外','屋内','美術館周辺','玄関','テラス・庭園'];
-  for (var ai = 0; ai < areas.length; ai++) {
-    var p = 'pl'+ai;
-    h += '<div class="fcard"><div class="fcard-head h-nature">'+areas[ai]+'</div><div style="padding:11px 13px;display:flex;flex-direction:column;gap:9px">';
-    h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">植物状態</span>'+mkOpts(fid,p+'_st',['良好','要対応'],'padding:5px 13px;font-size:12px')+'</div>';
-    h += '<div style="display:flex;gap:10px;flex-wrap:wrap"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--muted)">水やり</span>'+mkOpts(fid,p+'_wt',['実施','不要'],'padding:5px 10px;font-size:11px')+'</div><div style="display:flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--muted)">枯葉処理</span>'+mkOpts(fid,p+'_lf',['実施','不要'],'padding:5px 10px;font-size:11px')+'</div></div>';
-    h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">病虫害</span>'+mkOpts(fid,p+'_ps',['なし','あり'],'padding:5px 13px;font-size:12px')+'</div>';
-    h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">担当者</span><input class="field-inp" type="text" data-key="'+gk(fid,p+'_sf')+'" oninput="onInp(this)" placeholder="氏名"></div>';
-    h += '</div></div>';
-  }
-  var typhKey = gk(fid,'typhoon');
-  h += '<div class="fcard"><div class="fcard-head h-nature">台風前対応確認</div><div class="check-item"><div class="check-lbl">台風前に移動または固定が必要な植物</div><div class="opts"><button class="opt" data-key="'+typhKey+'" data-val="なし" onclick="selectOpt(this)">なし</button><button class="opt" data-key="'+typhKey+'" data-val="あり" onclick="selectOpt(this)">あり</button></div></div></div>';
-  h += mkTa(fid,'improve','今週改善が必要な植物',3);
-  h += mkSig(fid,['責任者確認']);
-  return h;
-}
-function form6(fid) {
-  var h = mkHdr(fid,[['date','申請日','date'],['reporter','申請者','text'],['found_time','発見時間','time'],['location','場所','text']]);
-  var types = ['漏水','電気','空調','給湯','ネットワーク','施錠','厨房設備','浴場','車両','その他'];
-  h += '<div class="fcard"><div class="fcard-head h-facility">異常分類（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
-  for (var i = 0; i < types.length; i++) h += mkTog(fid,'type',types[i],'padding:6px 12px;font-size:12px');
-  h += '</div></div>';
-  h += '<div class="fcard"><div class="fcard-head h-facility">緊急度</div><div class="check-item">'+mkOpts(fid,'level',['S級緊急','A級重要','B級一般','C級改善'],'padding:7px 12px')+'</div></div>';
-  var tfs = [['content','異常内容'],['temp','応急対応'],['contractor','修理業者'],['estimate','見積金額'],['approver','承認者'],['done_date','完了日']];
-  h += '<div class="fcard"><div class="fcard-head h-def">詳細情報</div>';
-  for (var ti = 0; ti < tfs.length; ti++) h += mkFld(fid,tfs[ti][0],tfs[ti][1],'text');
-  h += '<div style="padding:11px 15px"><label class="note-lbl">検収内容</label><textarea class="note-ta" rows="2" data-key="'+gk(fid,'check_detail')+'" oninput="onInp(this)"></textarea></div></div>';
-  h += mkSec(fid,'検収確認','h-def',[{id:'stop',t:'使用停止',o:['実施','未実施','不要']},{id:'fixed',t:'故障は修復されたか',o:['はい','いいえ']},{id:'safe',t:'安全に使用できるか',o:['はい','いいえ']},{id:'looks',t:'外観は回復したか',o:['はい','いいえ','該当なし']},{id:'extra',t:'追加修理は必要か',o:['不要','必要']},{id:'invoice',t:'請求書・領収書は保存したか',o:['はい','いいえ']}]);
-  h += mkSig(fid,['検収者署名','責任者確認']);
-  return h;
-}
-function form7(fid) {
-  var h = mkHdr(fid,[['reg_date','登録日','date'],['recorder','登録者','text'],['resp','接遇責任者','text'],['guest','顧客氏名','text'],['company','所属・会社名','text'],['count','人数','text'],['visit_date','来館日','date'],['arrive','来館時間','time'],['leave','退館時間','time']]);
-  var purps = ['宿泊','見学','企業研修','美術館','飲食','協業打合せ','VIP接遇','その他'];
-  h += '<div class="fcard"><div class="fcard-head h-other">接遇目的（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
-  for (var i = 0; i < purps.length; i++) h += mkTog(fid,'purp',purps[i],'padding:6px 12px;font-size:12px');
-  h += '</div></div>';
-  h += mkSec(fid,'サービス内容','h-quality',[{id:'meal_b',t:'朝食',o:['あり','なし']},{id:'meal_l',t:'昼食',o:['あり','なし']},{id:'meal_d',t:'夕食',o:['あり','なし']},{id:'meal_t',t:'茶菓',o:['あり','なし']},{id:'stay',t:'宿泊',o:['あり','なし']},{id:'fee',t:'料金区分',o:['通常料金','割引','無料','確認中']},{id:'transport',t:'送迎手配',o:['なし','福岡空港','長崎空港','その他']},{id:'photo',t:'写真・広報利用',o:['可','不可','別途確認']},{id:'rank',t:'接遇区分',o:['通常','重要','VIP']}]);
-  var tfs7 = [['room','客室手配'],['special_req','特別要望'],['allergy','食事制限・アレルギー'],['approver','承認者']];
-  h += '<div class="fcard"><div class="fcard-head h-def">詳細・特記事項</div>';
-  for (var ti = 0; ti < tfs7.length; ti++) h += '<div style="padding:10px 15px;border-bottom:1px solid #f5f5f5"><label class="note-lbl">'+tfs7[ti][1]+'</label><textarea class="note-ta" rows="2" data-key="'+gk(fid,tfs7[ti][0])+'" oninput="onInp(this)"></textarea></div>';
-  h += '</div>';
-  h += mkSec(fid,'接遇後の記録','h-quality',[{id:'satisfaction',t:'顧客満足度',o:['良好','普通','要改善']}]);
-  h += mkTa(fid,'opinion','顧客意見',3);
-  h += mkTa(fid,'followup','今後のフォロー事項',2);
-  h += mkSig(fid,['責任者署名']);
-  return h;
-}
-function form8(fid) {
-  var h = mkHdr(fid,[['date','申請日','date'],['applicant','申請者','text'],['guest','顧客氏名・所属','text'],['visit_date','接遇日','date'],['count','人数','text'],['normal_price','通常価格','text','例：50,000円'],['applied_price','申請後価格','text'],['discount','減免金額','text']]);
-  var cats = ['無料宿泊','無料飲食','割引','無料見学','無料会議室','体験提供','その他'];
-  h += '<div class="fcard"><div class="fcard-head h-other">申請区分（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
-  for (var i = 0; i < cats.length; i++) h += mkTog(fid,'cat',cats[i],'padding:6px 12px;font-size:12px');
-  h += '</div></div>';
-  var purps8 = ['協業開発','VIP維持','メディア広報','企業視察','関係維持','その他'];
-  h += '<div class="fcard"><div class="fcard-head h-other">商業目的（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
-  for (var pi = 0; pi < purps8.length; pi++) h += mkTog(fid,'purp8',purps8[pi],'padding:6px 12px;font-size:12px');
-  h += '</div></div>';
-  h += mkSec(fid,'サービス内容','h-quality',[{id:'stay',t:'宿泊の有無',o:['あり','なし']},{id:'food',t:'飲食の有無',o:['あり','なし']},{id:'transport',t:'車両送迎の有無',o:['あり','なし']},{id:'promo',t:'広報利用可否',o:['可','不可','確認中']}]);
-  var approvals = [{id:'mgr',lb:'支配人'},{id:'ceo',lb:'会長／代表者'}];
-  h += '<div class="fcard"><div class="fcard-head h-safety">承認欄</div>';
-  for (var ai = 0; ai < approvals.length; ai++) {
-    var ap = approvals[ai];
-    h += '<div class="check-item"><div class="check-lbl" style="font-weight:700">'+ap.lb+'</div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px">'+mkOpts(fid,'ap_'+ap.id,['承認','否認','要修正'])+'<input style="border:1.5px solid var(--border);border-radius:7px;padding:4px 7px;font-size:12px;font-family:inherit;outline:none" type="date" data-key="'+gk(fid,'ap_date_'+ap.id)+'" oninput="onInp(this)"></div></div>';
-  }
-  h += '<div class="check-item"><div class="check-lbl">実施結果</div>'+mkOpts(fid,'result',['実施済','取消','変更'])+'</div></div>';
-  h += mkTa(fid,'reason','申請理由',3);
-  h += mkTa(fid,'dept','費用負担部門・案件',2);
-  h += mkTa(fid,'remarks','備考',2);
-  h += mkSig(fid,['保管者']);
-  return h;
-}
-function form9(fid) {
-  var h = mkHdr(fid,[['name','台風名・種別','text'],['expected','予想影響日','date'],['manager','責任者','text']]);
-  h += mkSec(fid,'72時間前点検','h-typhoon',[{id:'t72a',t:'気象情報確認',o:['完了','未完了']},{id:'t72b',t:'予約制限判断',o:['完了','未完了']},{id:'t72c',t:'宿泊顧客行程確認',o:['完了','該当なし']},{id:'t72d',t:'従業員勤務・帰宅安全確認',o:['完了','未完了']},{id:'t72e',t:'緊急連絡先確認',o:['完了','未完了']}]);
-  h += mkSec(fid,'48時間前点検','h-typhoon',[{id:'t48a',t:'扉・窓確認',o:['完了','異常']},{id:'t48b',t:'屋根、バルコニー、テラス確認',o:['完了','異常']},{id:'t48c',t:'排水溝確認',o:['完了','異常']},{id:'t48d',t:'車両安全位置確認',o:['完了','未完了']},{id:'t48e',t:'外灯、看板、植木鉢確認',o:['完了','異常']}]);
-  h += mkSec(fid,'24時間前点検','h-typhoon',[{id:'t24a',t:'椅子収納',o:['完了','該当なし']},{id:'t24b',t:'テーブル固定',o:['完了','該当なし']},{id:'t24c',t:'屋外設備固定',o:['完了','該当なし']},{id:'t24d',t:'ゴミ箱・工具収納',o:['完了','該当なし']},{id:'t24e',t:'重要区域撮影',o:['完了','未完了']},{id:'t24f',t:'応急物資確認',o:['完了','未完了']}]);
-  h += mkSec(fid,'台風通過後点検','h-safety',[{id:'taa',t:'人員安全',o:['正常','異常']},{id:'tab',t:'建物外観',o:['正常','異常']},{id:'tac',t:'漏水',o:['なし','あり']},{id:'tad',t:'電気',o:['正常','異常']},{id:'tae',t:'美術館',o:['正常','異常']},{id:'taf',t:'車両',o:['正常','異常']},{id:'tag',t:'植物・庭園',o:['正常','異常']},{id:'tah',t:'修理必要事項',o:['なし','あり']},{id:'tai',t:'台風後写真撮影',o:['撮影済','未撮影']},{id:'taj',t:'報告書提出の要否',o:['必要','不要']}]);
-  h += mkSig(fid,['責任者署名','管理者確認']);
-  return h;
-}
-function form10(fid) {
-  var h = mkHdr(fid,[['rep_date','報告日','date'],['reporter','報告者','text'],['inc_date','発生日','date'],['inc_time','発生時間','time'],['location','発生場所','text'],['persons','関係者','text']]);
-  var types10 = ['顧客負傷','従業員負傷','火災','漏水','漏電','盗難','苦情','食品衛生','美術品異常','設備故障','災害','その他'];
-  h += '<div class="fcard"><div class="fcard-head h-other">事件分類（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
-  for (var i = 0; i < types10.length; i++) h += mkTog(fid,'type10',types10[i],'padding:6px 12px;font-size:12px');
-  h += '</div></div>';
-  h += '<div class="fcard"><div class="fcard-head h-other">緊急度</div><div class="check-item">'+mkOpts(fid,'level',['S級','A級','B級','C級'],'padding:7px 16px')+'</div></div>';
-  h += mkSec(fid,'対応確認','h-other',[{id:'police',t:'警察・消防・救急への連絡',o:['あり','なし']},{id:'cust_exp',t:'顧客への説明',o:['済','未了','該当なし']},{id:'photo',t:'写真・動画記録',o:['あり','なし']},{id:'compensation',t:'賠償可能性',o:['あり得る','なし','確認中']},{id:'repair',t:'修理必要性',o:['あり','なし']},{id:'mgr',t:'管理者判断の要否',o:['必要','不要']}]);
-  var atbl = '<table class="tbl"><thead><tr><th style="text-align:left">対応事項</th><th>担当</th><th>期限</th><th>完了</th></tr></thead><tbody>';
-  for (var an = 1; an <= 3; an++) {
-    atbl += '<tr><td><input class="field-inp" type="text" data-key="'+gk(fid,'act_t'+an)+'" oninput="onInp(this)" placeholder="対応事項" style="width:100%;min-width:80px"></td><td><input class="tiny-inp" type="text" data-key="'+gk(fid,'act_r'+an)+'" oninput="onInp(this)" placeholder="担当"></td><td><input class="tiny-inp" type="date" data-key="'+gk(fid,'act_d'+an)+'" oninput="onInp(this)" style="width:110px"></td><td>'+mkOpts(fid,'act_s'+an,['完了','未完了'],'padding:4px 8px;font-size:11px')+'</td></tr>';
-  }
-  atbl += '</tbody></table>';
-  h += '<div class="fcard"><div class="fcard-head h-def">今後の対応計画</div><div style="overflow-x:auto;padding:10px">'+atbl+'</div></div>';
-  h += mkTa(fid,'background','発生経緯',3);
-  h += mkTa(fid,'cause','初期原因',2);
-  h += mkTa(fid,'action_taken','実施済対応',2);
-  h += mkTa(fid,'contact','連絡先・連絡相手',2);
-  h += mkTa(fid,'prevent1','再発防止策①',2);
-  h += mkTa(fid,'prevent2','再発防止策②',2);
-  h += mkSig(fid,['支配人確認','会長／代表者確認']);
-  return h;
+  saveAll(all);
+  document.getElementById('csv-text').value='';
+  alert('認識した行数: '+lines.length+'（見出し含む）\n取り込んだ作品: '+added+'件');
+  render();
 }
 
 // ===== INIT =====
-updateHomeCards();
-updateSheetsIndicator();
+seedIfEmpty();
+render();
 </script>
 </body>
 </html>
