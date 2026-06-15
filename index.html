@@ -271,7 +271,7 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 </div>
 
 <script>
-var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var sheetName = "様式" + formId;\n    var sheet = ss.getSheetByName(sheetName);\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,8).setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n    }\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虞害あり","範囲外","未撑影","交換必要","貸出中","未精算","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撑影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","精算済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), date, formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
+var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheetName = "記録";\n    var sheet = ss.getSheetByName(sheetName);\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      var hdr = sheet.getRange(1,1,1,9);\n      hdr.setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n      sheet.setFrozenRows(1);\n      sheet.setColumnWidth(1,160);\n      sheet.setColumnWidth(4,180);\n      sheet.setColumnWidth(8,300);\n      sheet.setColumnWidth(9,400);\n    }\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要","貸出中","未精算","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","精算済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    var rowColor = ngCount > 0 ? "#fff3e0" : "#ffffff";\n    var lastRow = sheet.appendRow([new Date().toLocaleString("ja-JP"), date, Number(formId), formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    var newRow = sheet.getLastRow();\n    if (ngCount > 0) sheet.getRange(newRow,1,1,9).setBackground("#fff3e0");\n    return ContentService.createTextOutput(JSON.stringify({status:"ok",form:formName,ng:ngCount})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
 
 // ===== SETTINGS =====
 var SETTINGS = {pin:'0000', scriptUrl:''};
@@ -606,35 +606,95 @@ function openManager() {
 function renderManager() {
   var t = today(); var past30 = [];
   for (var d = 0; d < 30; d++) { var dd = new Date(); dd.setDate(dd.getDate()-d); past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate())); }
-  var todaySaved = 0; var todayNg = 0;
+  var todaySaved = 0; var todayNg = 0; var todayOk = 0;
+  var formStats = [];
   for (var fi = 1; fi <= TOTAL_FORMS; fi++) {
-    if (hasRecord(fi,t)) {
+    var saved = hasRecord(fi,t);
+    var ok2=0; var ng2=0;
+    if (saved) {
       todaySaved++;
       var rec0 = getRecord(fi,t); var rk0 = Object.keys(rec0);
-      for (var ki0 = 0; ki0 < rk0.length; ki0++) { if (isNg(rec0[rk0[ki0]])) todayNg++; }
+      for (var ki0 = 0; ki0 < rk0.length; ki0++) { var v0=rec0[rk0[ki0]]; if(isOpt(v0)){if(isNg(v0)){ng2++;todayNg++;}else{ok2++;todayOk++;}} }
     }
+    var cnt30=0;
+    for (var di=0;di<past30.length;di++) { if(hasRecord(fi,past30[di])) cnt30++; }
+    formStats.push({fid:fi,saved:saved,ok:ok2,ng:ng2,cnt30:cnt30});
   }
-  var monthTotal = 0;
-  for (var di0 = 0; di0 < past30.length; di0++) {
-    for (var mfi = 1; mfi <= TOTAL_FORMS; mfi++) { if (hasRecord(mfi, past30[di0])) monthTotal++; }
+  var compRate = Math.round(todaySaved/TOTAL_FORMS*100);
+  var dkeys = getDateKeys();
+  var d0 = new Date(); var ds = d0.getFullYear()+'年'+(d0.getMonth()+1)+'月'+d0.getDate()+'日';
+
+  var h = '';
+
+  // ── KPIバナー ──
+  h += '<div style="background:var(--navy);margin:-14px -14px 16px;padding:18px 16px 16px">';
+  h += '<div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:10px;letter-spacing:1px">'+ds+'　本日のサマリー</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">';
+  h += '<div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px 10px;text-align:center"><div style="font-size:26px;font-weight:700;color:'+(compRate>=80?'#6ee7a0':compRate>=50?'#fcd34d':'#fca5a5')+'">'+compRate+'%</div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:3px">完了率</div></div>';
+  h += '<div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px 10px;text-align:center"><div style="font-size:26px;font-weight:700;color:#6ee7a0">'+todaySaved+'<span style="font-size:14px;color:rgba(255,255,255,.5)">/'+TOTAL_FORMS+'</span></div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:3px">保存済み</div></div>';
+  h += '<div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px 10px;text-align:center"><div style="font-size:26px;font-weight:700;color:'+(todayNg>0?'#fca5a5':'#6ee7a0')+'">'+todayNg+'</div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:3px">異常件数</div></div>';
+  h += '</div></div>';
+
+  // ── 異常アラート ──
+  var ngForms = formStats.filter(function(s){ return s.ng>0; });
+  if (ngForms.length > 0) {
+    h += '<div style="background:#fff3e0;border-radius:12px;padding:12px 14px;margin-bottom:14px;border-left:4px solid var(--orange)">';
+    h += '<div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px">⚠ 本日の異常あり様式</div>';
+    for (var ai=0;ai<ngForms.length;ai++) {
+      var ns = ngForms[ai];
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.06)">';
+      h += '<span style="font-size:13px">'+ICONS[ns.fid]+' 様式'+ns.fid+'　'+TITLES[ns.fid]+'</span>';
+      h += '<span style="background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px">異常 '+ns.ng+'件</span>';
+      h += '</div>';
+    }
+    h += '</div>';
   }
-  var h = '<div class="mgr-stat-grid">';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--green)">'+todaySaved+'/'+TOTAL_FORMS+'</div><div class="mgr-stat-lbl">今日の保存済み様式</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:'+(todayNg>0?'var(--red)':'var(--green)')+'">'+todayNg+'</div><div class="mgr-stat-lbl">今日の異常件数</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--navy)">'+monthTotal+'</div><div class="mgr-stat-lbl">過去30日の総点検数</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--gold)">'+getDateKeys().length+'</div><div class="mgr-stat-lbl">記録のある日数</div></div>';
-  h += '</div><div style="overflow-x:auto"><table class="mgr-table"><thead><tr><th>様式</th><th>名称</th><th>状態</th><th>正常</th><th>異常</th></tr></thead><tbody>';
-  for (var i = 1; i <= TOTAL_FORMS; i++) {
-    var saved = hasRecord(i,t); var rec2 = getRecord(i,t);
-    var ok2 = 0; var ng2 = 0; var k2 = Object.keys(rec2);
-    for (var ki2 = 0; ki2 < k2.length; ki2++) { var v2=rec2[k2[ki2]]; if(isOpt(v2)){if(isNg(v2))ng2++;else ok2++;} }
-    var stBadge = saved ? '<span class="badge-ok">✅ 完了</span>' : '<span class="badge-no">未実施</span>';
-    h += '<tr><td>'+ICONS[i]+i+'</td><td style="text-align:left;font-size:11px">'+TITLES[i]+'</td><td>'+stBadge+'</td>';
-    h += '<td style="color:var(--green);font-weight:700">'+(saved?ok2:'-')+'</td>';
-    h += '<td>'+(saved&&ng2>0?('<span class="badge-ng">'+ng2+'</span>'):saved?'<span style="color:var(--green)">0</span>':'-')+'</td></tr>';
+
+  // ── 様式カードグリッド ──
+  h += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.5px">本日の点検状況</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">';
+  for (var i=0;i<formStats.length;i++) {
+    var s = formStats[i];
+    var borderColor = s.saved ? (s.ng>0 ? 'var(--orange)' : 'var(--green)') : 'var(--border)';
+    var bgColor = s.saved ? (s.ng>0 ? '#fffbf0' : '#f0faf4') : '#fff';
+    var statusTxt = s.saved ? (s.ng>0 ? '⚠ 異常あり' : '✅ 完了') : '⬜ 未実施';
+    var statusColor = s.saved ? (s.ng>0 ? 'var(--orange)' : 'var(--green)') : 'var(--muted)';
+    h += '<div style="background:'+bgColor+';border:2px solid '+borderColor+';border-radius:13px;padding:12px 11px;cursor:pointer" onclick="goHome();setTimeout(function(){openForm('+s.fid+')},100)">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    h += '<span style="font-size:18px">'+ICONS[s.fid]+'</span>';
+    h += '<span style="font-size:10px;font-weight:700;color:'+statusColor+'">'+statusTxt+'</span>';
+    h += '</div>';
+    h += '<div style="font-size:10px;color:var(--muted);margin-bottom:2px">様式'+s.fid+'</div>';
+    h += '<div style="font-size:12px;font-weight:700;line-height:1.4;color:var(--text)">'+TITLES[s.fid]+'</div>';
+    if (s.saved) {
+      h += '<div style="display:flex;gap:8px;margin-top:7px">';
+      h += '<span style="font-size:11px;color:var(--green);font-weight:700">✓ '+s.ok+'</span>';
+      if(s.ng>0) h += '<span style="font-size:11px;color:var(--red);font-weight:700">✗ '+s.ng+'</span>';
+      h += '</div>';
+    }
+    h += '</div>';
   }
-  h += '</tbody></table></div>';
-  h += '<div style="padding:14px 0"><button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
+  h += '</div>';
+
+  // ── 過去30日 達成率バー ──
+  h += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.5px">過去30日　様式別達成率</div>';
+  for (var pi=0;pi<formStats.length;pi++) {
+    var ps = formStats[pi];
+    var pct = Math.round(ps.cnt30/30*100);
+    var fc = pct>=80?'var(--green)':(pct>=50?'var(--orange)':'var(--red)');
+    h += '<div style="background:var(--card);border-radius:10px;padding:10px 13px;margin-bottom:7px;box-shadow:var(--shadow)">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    h += '<span style="font-size:12px;font-weight:700">'+ICONS[ps.fid]+' 様式'+ps.fid+'　'+TITLES[ps.fid]+'</span>';
+    h += '<span style="font-size:12px;font-weight:700;color:'+fc+'">'+pct+'%</span>';
+    h += '</div>';
+    h += '<div style="background:#f0f0f0;border-radius:4px;height:7px;overflow:hidden">';
+    h += '<div style="background:'+fc+';height:100%;width:'+pct+'%;border-radius:4px;transition:width .4s"></div>';
+    h += '</div>';
+    h += '<div style="font-size:10px;color:var(--muted);margin-top:4px">'+ps.cnt30+'/30日 完了</div>';
+    h += '</div>';
+  }
+
+  h += '<div style="padding:4px 0 20px"><button class="settings-btn green" style="margin-bottom:8px" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
   document.getElementById('manager-body').innerHTML = h;
 }
 
