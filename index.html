@@ -268,7 +268,7 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
   <div class="form-header">
     <button class="btn-sm" onclick="goHome()">← ホーム</button>
     <div class="fh-title" style="color:#fff">👑 管理者パネル</div>
-    <button class="btn-sm" onclick="exportCSV()">📥 CSV</button>
+    <button class="btn-sm" onclick="renderManager()">🔄 更新</button>
   </div>
   <div class="form-body" id="manager-body"></div>
 </div>
@@ -374,7 +374,11 @@ function openForm(id) {
   var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10,form11,form12,form13,form14,form15,form16];
   document.getElementById('fh-title').textContent = '様式'+id+'　'+(TITLES[id]||'');
   document.getElementById('form-body').innerHTML = fns[id] ? fns[id](id) : '';
-  restoreForm(id, getDraft(id)); updateStatusBar(); showScreen('form-screen');
+  var draft = getDraft(id);
+  // 日付欄が未入力の場合は今日の日付を自動セット
+  var dateKey = 'f'+id+'_date';
+  if (!draft[dateKey]) { draft[dateKey] = today(); setField(id, dateKey, today()); }
+  restoreForm(id, draft); updateStatusBar(); showScreen('form-screen');
 }
 
 function updateStatusBar() {
@@ -843,9 +847,47 @@ function renderManager() {
     h += '</div>';
   }
 
+  // ── 全日付の保存記録 ──
+  var allKeys = getDateKeys();
+  if (allKeys.length > 0) {
+    h += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.5px">📁 全保存記録（'+allKeys.length+'日分）</div>';
+    for (var ak=0; ak<allKeys.length; ak++) {
+      var dk = allKeys[ak]; var dayForms = [];
+      for (var df=1;df<=TOTAL_FORMS;df++) { if(hasRecord(df,dk)) dayForms.push(df); }
+      if (dayForms.length === 0) continue;
+      h += '<div style="background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
+      h += '<div style="background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">';
+      h += '<span style="color:#fff;font-weight:700;font-size:14px">📅 '+fmtD(dk)+'</span>';
+      h += '<span style="background:rgba(255,255,255,.2);color:#fff;font-size:11px;padding:2px 9px;border-radius:8px">'+dayForms.length+' / '+TOTAL_FORMS+' 様式</span>';
+      h += '</div>';
+      h += '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">';
+      for (var df2=0; df2<dayForms.length; df2++) {
+        var fi2 = dayForms[df2];
+        var rec2 = getRecord(fi2, dk); var ng2b=0;
+        var rk2 = Object.keys(rec2);
+        for (var rki=0; rki<rk2.length; rki++) { if(isNg(rec2[rk2[rki]])) ng2b++; }
+        var bc = ng2b>0?'#fff3e0':'#f0faf4'; var tc = ng2b>0?'var(--orange)':'var(--green)';
+        h += '<div style="background:'+bc+';border-radius:8px;padding:7px 8px;border-left:3px solid '+tc+'">';
+        h += '<div style="font-size:10px;color:var(--muted)">様式'+fi2+'</div>';
+        h += '<div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">'+ICONS[fi2]+' '+TITLES[fi2]+'</div>';
+        if (ng2b>0) h += '<div style="font-size:10px;color:var(--red);margin-top:3px">異常 '+ng2b+'件</div>';
+        else h += '<div style="font-size:10px;color:var(--green);margin-top:3px">✅ 正常</div>';
+        h += '</div>';
+      }
+      h += '</div></div>';
+    }
+  } else {
+    h += '<div style="background:#fff8e1;border-radius:12px;padding:20px;text-align:center;margin-bottom:14px">';
+    h += '<div style="font-size:24px;margin-bottom:8px">📭</div>';
+    h += '<div style="font-size:14px;font-weight:700;color:var(--muted)">まだ保存された記録がありません</div>';
+    h += '<div style="font-size:12px;color:var(--muted);margin-top:5px">各様式に記入して「保存」を押してください</div>';
+    h += '</div>';
+  }
+
   h += '<div style="padding:4px 0 20px">';
   h += '<button class="settings-btn" style="background:#c8a951;color:#1a2744;margin-bottom:8px" onclick="exportHTML()">📄 全記録をHTMLレポートで保存</button>';
   h += '<button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
+  h += '<div style="text-align:center;font-size:10px;color:var(--muted);padding-bottom:20px">天海の城 管理システム v2.1</div>';
   document.getElementById('manager-body').innerHTML = h;
 }
 
