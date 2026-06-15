@@ -39,7 +39,7 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 .h-def{background:#f5f5f5;color:#555}.h-safety{background:#e8f5e9;color:#1b5e20}.h-quality{background:#e3f2fd;color:#0d47a1}
 .h-facility{background:#fff3e0;color:#bf360c}.h-other{background:#f3e5f5;color:#4a148c}.h-security{background:#fce4ec;color:#880e4f}
 .h-art{background:#e0f2f1;color:#004d40}.h-nature{background:#f1f8e9;color:#33691e}.h-typhoon{background:#e8eaf6;color:#1a237e}
-.h-mgr{background:#e8eaf6;color:#1a237e}.h-ops{background:#fff8e1;color:#5d4037}.h-kitchen{background:#fbe9e7;color:#bf360c}
+.h-ops{background:#fff8e1;color:#5d4037}.h-kitchen{background:#fbe9e7;color:#bf360c}
 .h-key{background:#ede7f6;color:#4a148c}.h-expense{background:#e8f5e9;color:#1b5e20}.h-report{background:#e3f2fd;color:#0d47a1}
 .field-row{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid #f5f5f5}
 .field-row:last-child{border-bottom:none}
@@ -81,13 +81,6 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 .prog-fill{height:100%;border-radius:4px}
 .pf-hi{background:var(--green)}.pf-mid{background:var(--orange)}.pf-lo{background:var(--red)}
 .prog-lbl{font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-.stats-toggle{background:#f0f0f0;border:none;padding:5px 11px;border-radius:9px;font-size:11px;cursor:pointer;font-family:inherit;margin-top:7px}
-.stats-detail{display:none;margin-top:9px;border-top:1px solid #f5f5f5;padding-top:9px}
-.stats-detail.open{display:block}
-.stat-row{display:flex;align-items:center;padding:4px 0;border-bottom:1px solid #f9f9f9;font-size:12px}
-.stat-row:last-child{border:none}
-.stat-lbl{flex:1;color:var(--text)}.stat-ok{color:var(--green);font-weight:700;margin-left:8px}
-.stat-ng{color:var(--red);font-weight:700;margin-left:8px}.stat-warn{color:var(--orange);font-weight:700;margin-left:8px}
 .anomaly-card{background:var(--card);border-radius:10px;padding:10px 13px;margin-bottom:7px;box-shadow:var(--shadow);border-left:3px solid var(--red)}
 .anomaly-date{font-size:11px;color:var(--muted)}.anomaly-text{font-size:13px;margin-top:2px;font-weight:600}
 .hist-item{background:var(--card);border-radius:12px;padding:12px 15px;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
@@ -220,7 +213,7 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
       <div class="settings-head">👑 管理者PIN</div>
       <div class="settings-row">
         <div class="settings-lbl">管理者パネルのPINコード</div>
-        <div class="settings-sub">管理者パネルを開く際に使用する4桁の数字（初期値：0000）</div>
+        <div class="settings-sub">4桁の数字（初期値：0000）</div>
         <input class="settings-inp" type="number" id="inp-pin" placeholder="例：1234" maxlength="4">
       </div>
     </div>
@@ -232,21 +225,24 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
       </div>
       <div class="settings-row">
         <div class="settings-lbl">Apps Script URL</div>
-        <div class="settings-sub">デプロイ後に発行されるURLを貼り付けてください。</div>
+        <div class="settings-sub">デプロイ後のURLを貼り付けてください</div>
         <input class="settings-inp" type="url" id="inp-url" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
       </div>
       <div class="settings-row">
         <div class="settings-lbl">📋 設定手順</div>
-        <div class="settings-sub" style="line-height:2">
+        <div class="settings-sub" style="line-height:2.2">
           ① Googleスプレッドシートを新規作成<br>
           ② 「拡張機能」→「Apps Script」を開く<br>
-          ③ 下のボタンでコードをコピーして貼り付け<br>
+          ③ 下のコードを全選択して貼り付け・保存<br>
           ④ 「デプロイ」→「新しいデプロイ」→種類「ウェブアプリ」<br>
-          ⑤ 「アクセスできるユーザー」を<strong>「全員」</strong>に設定してデプロイ<br>
-          ⑥ 表示されたURLをコピーして上の欄に貼り付け<br>
-          ⑦「設定を保存」を押す
+          ⑤ 「アクセスできるユーザー」を<strong>「全員」</strong>に設定<br>
+          ⑥ 「デプロイ」→ 「アクセスを承認」→「詳細」→「移動」→「許可」<br>
+          ⑦ 発行されたURLを上の欄に貼り付けて「設定を保存」
         </div>
-        <button class="settings-btn" onclick="copyScript()" style="margin-top:4px">📋 Apps Scriptコードをコピー</button>
+        <div id="script-code-box" style="background:#1e1e2e;border-radius:10px;padding:12px;margin-top:8px;overflow-x:auto">
+          <pre style="color:#cdd6f4;font-size:11px;white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0" id="script-code-pre"></pre>
+        </div>
+        <button class="settings-btn" onclick="copyScript()" style="margin-top:8px">📋 上のコードをコピー</button>
       </div>
     </div>
     <div class="settings-section">
@@ -275,6 +271,8 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 </div>
 
 <script>
+var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var sheetName = "様式" + formId;\n    var sheet = ss.getSheetByName(sheetName);\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,8).setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n    }\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虞害あり","範囲外","未撑影","交換必要","貸出中","未精算","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撑影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","精算済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), date, formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
+
 // ===== SETTINGS =====
 var SETTINGS = {pin:'0000', scriptUrl:''};
 try {
@@ -296,27 +294,33 @@ function updateSheetsIndicator() {
   var el2 = document.getElementById('settings-sheets-status');
   if (SETTINGS.scriptUrl) {
     if(el) el.innerHTML = '<span class="sheets-ok">📊 Sheets接続済</span>';
-    if(el2) el2.innerHTML = '<span style="color:var(--green);font-weight:700">✅ 接続済 — 保存時に自動送信されます</span>';
+    if(el2) el2.innerHTML = '<span style="color:var(--green);font-weight:700">✅ 接続済</span>';
   } else {
     if(el) el.innerHTML = '<span class="sheets-no">📊 Sheets未設定</span>';
-    if(el2) el2.innerHTML = '<span style="color:var(--muted)">未設定（設定するとデータが自動でSpreadsheetに送られます）</span>';
+    if(el2) el2.innerHTML = '<span style="color:var(--muted)">未設定</span>';
   }
 }
 
-var APPS_SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "記録";\n    var sheetName = "様式" + formId;\n    var sheet = ss.getSheetByName(sheetName);\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      sheet.getRange(1,1,1,8).setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n    }\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要","貸出中","未精算","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","精算済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    sheet.appendRow([new Date().toLocaleString("ja-JP"), date, formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    return ContentService.createTextOutput(JSON.stringify({status:"ok",form:formName,ng:ngCount})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
-
 function copyScript() {
-  var code = APPS_SCRIPT_CODE.replace(/\\n/g, '\n');
+  var code = SCRIPT_CODE.replace(/\\n/g, '\n');
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code).then(function() {
-      alert('✅ スクリプトをコピーしました！\nGoogle Apps Scriptに貼り付けてください。');
+      alert('コピーしました！Apps Scriptに貼り付けてください。');
+    }).catch(function() {
+      fallbackCopy(code);
     });
   } else {
-    var ta = document.createElement('textarea');
-    ta.value = code.replace(/\\n/g,'\n');
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    alert('✅ スクリプトをコピーしました！\nGoogle Apps Scriptに貼り付けてください。');
+    fallbackCopy(code);
   }
+}
+function fallbackCopy(code) {
+  var ta = document.createElement('textarea');
+  ta.value = code;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); alert('コピーしました！Apps Scriptに貼り付けてください。'); }
+  catch(e) { alert('コピーできませんでした。コード欄を長押しして手動でコピーしてください。'); }
+  document.body.removeChild(ta);
 }
 
 // ===== DATA =====
@@ -393,19 +397,18 @@ function saveRecord() {
   updateStatusBar(); updateHomeCards();
 }
 
+// ===== SHEETS送信（new Image方式・最も確実） =====
 function postToSheets(fid, record) {
-  var url = SETTINGS.scriptUrl; if (!url) return;
+  var url = SETTINGS.scriptUrl;
+  if (!url) return;
   var params = [
     'date='+encodeURIComponent(today()),
     'formId='+encodeURIComponent(fid),
     'formName='+encodeURIComponent(TITLES[fid]||''),
     'record='+encodeURIComponent(JSON.stringify(record))
   ].join('&');
-  try {
-    fetch(url+'?'+params, {method:'GET', mode:'no-cors'}).catch(function(){});
-  } catch(e) {
-    try { var _img = new Image(); _img.src = url+'?'+params; } catch(e2) {}
-  }
+  var img = new Image();
+  img.src = url + '?' + params;
 }
 
 function clearDraft() {
@@ -445,10 +448,7 @@ function updateHomeCards() {
 function openDash() { renderDash(); showScreen('dash-screen'); }
 function renderDash() {
   var t = today(); var past30 = [];
-  for (var d = 0; d < 30; d++) {
-    var dd = new Date(); dd.setDate(dd.getDate()-d);
-    past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate()));
-  }
+  for (var d = 0; d < 30; d++) { var dd = new Date(); dd.setDate(dd.getDate()-d); past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate())); }
   var h = '<div class="dash-section"><div class="dash-sec-title">今日の点検状況</div>';
   for (var i = 1; i <= TOTAL_FORMS; i++) {
     var saved = hasRecord(i,t); var drafted = hasDraft(i);
@@ -465,11 +465,8 @@ function renderDash() {
     var pct = Math.round(cnt/30*100); var fc = pct>=80?'pf-hi':(pct>=50?'pf-mid':'pf-lo');
     h += '<div class="prog-card"><div class="prog-name">'+ICONS[fi]+' 様式'+fi+'　'+TITLES[fi]+'</div>';
     h += '<div class="prog-bar"><div class="prog-fill '+fc+'" style="width:'+pct+'%"></div></div>';
-    h += '<div class="prog-lbl"><span>'+cnt+'/30日</span><span>'+pct+'%</span></div>';
-    h += '<button class="stats-toggle" onclick="toggleStats(this,'+fi+')">📈 項目別統計</button>';
-    h += '<div class="stats-detail" id="st-'+fi+'"></div></div>';
+    h += '<div class="prog-lbl"><span>'+cnt+'/30日</span><span>'+pct+'%</span></div></div>';
   }
-  h += '</div>';
   var anoms = []; var recent7 = past30.slice(0,7);
   for (var ri = 0; ri < recent7.length; ri++) {
     var rD = recent7[ri]; if (!DB[rD]) continue;
@@ -479,57 +476,15 @@ function renderDash() {
     }
   }
   if (anoms.length > 0) {
-    h += '<div class="dash-section"><div class="dash-sec-title">⚠ 異常項目（直近7日間）</div>';
+    h += '</div><div class="dash-section"><div class="dash-sec-title">⚠ 異常項目（直近7日間）</div>';
     for (var ai = 0; ai < anoms.length; ai++) {
       var an = anoms[ai];
       h += '<div class="anomaly-card"><div class="anomaly-date">'+fmtD(an.date)+'　様式'+an.form+'</div>';
       h += '<div class="anomaly-text">'+ICONS[an.form]+' '+TITLES[an.form]+'　→　'+an.val+'</div></div>';
     }
-    h += '</div>';
   }
+  h += '</div>';
   document.getElementById('dash-body').innerHTML = h;
-}
-
-function toggleStats(btn, fid) {
-  var div = document.getElementById('st-'+fid); if (!div) return;
-  if (div.classList.contains('open')) { div.classList.remove('open'); btn.textContent='📈 項目別統計'; return; }
-  btn.textContent = '📈 閉じる'; div.classList.add('open');
-  var dkeys = getDateKeys();
-  if (dkeys.length === 0) { div.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:6px 0">記録がまだありません</p>'; return; }
-  var fCounts = {};
-  for (var di = 0; di < dkeys.length; di++) {
-    var rec = getRecord(fid, dkeys[di]); var keys = Object.keys(rec);
-    for (var ki = 0; ki < keys.length; ki++) {
-      var v = rec[keys[ki]]; if (!isOpt(v)) continue;
-      if (!fCounts[keys[ki]]) fCounts[keys[ki]] = {};
-      fCounts[keys[ki]][v] = (fCounts[keys[ki]][v] || 0) + 1;
-    }
-  }
-  var labels = extractLabels(fid); var skeys = Object.keys(fCounts);
-  if (skeys.length === 0) { div.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:6px 0">集計データなし</p>'; return; }
-  var h = '';
-  for (var si = 0; si < skeys.length; si++) {
-    var sk = skeys[si]; var counts = fCounts[sk]; var lbl = labels[sk] || sk.replace('f'+fid+'_','');
-    h += '<div class="stat-row"><span class="stat-lbl">'+lbl+'</span>';
-    var vkeys = Object.keys(counts);
-    for (var vi = 0; vi < vkeys.length; vi++) {
-      var vk = vkeys[vi]; var vc = isNg(vk) ? 'stat-ng' : (WN_VALS.indexOf(vk)>=0?'stat-warn':'stat-ok');
-      h += '<span class="'+vc+'">'+vk+':'+counts[vk]+'</span>';
-    }
-    h += '</div>';
-  }
-  div.innerHTML = h;
-}
-
-function extractLabels(fid) {
-  var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10,form11,form12,form13,form14,form15,form16];
-  var labels = {}; var tmp = document.createElement('div'); tmp.innerHTML = fns[fid](fid);
-  var items = tmp.querySelectorAll('.check-item');
-  for (var i = 0; i < items.length; i++) {
-    var lbl = items[i].querySelector('.check-lbl'); var opts = items[i].querySelectorAll('.opt:not([data-tog])');
-    if (lbl && opts.length > 0) { var key = opts[0].getAttribute('data-key'); if (key) labels[key] = lbl.textContent.trim(); }
-  }
-  return labels;
 }
 
 // ===== SUMMARY =====
@@ -584,8 +539,7 @@ function viewRecord(fid, dateStr) {
   var fns = [null,form1,form2,form3,form4,form5,form6,form7,form8,form9,form10,form11,form12,form13,form14,form15,form16];
   var body = document.getElementById('hist-body'); body.innerHTML = '';
   var top = document.createElement('div'); top.style.cssText = 'padding:12px 14px;display:flex;align-items:center;gap:12px';
-  top.innerHTML = '<button class="btn-sm" style="background:var(--navy);color:#fff" onclick="renderHistList('+fid+')">← 一覧</button>'
-    + '<span style="font-size:14px;font-weight:700">'+fmtD(dateStr)+'の記録</span>';
+  top.innerHTML = '<button class="btn-sm" style="background:var(--navy);color:#fff" onclick="renderHistList('+fid+')">← 一覧</button><span style="font-size:14px;font-weight:700">'+fmtD(dateStr)+'の記録</span>';
   body.appendChild(top);
   var fd = document.createElement('div'); fd.style.cssText = 'padding:0 14px 80px'; fd.innerHTML = fns[fid](fid); body.appendChild(fd);
   var rec = getRecord(fid, dateStr);
@@ -608,10 +562,11 @@ function viewRecord(fid, dateStr) {
 function openSettings() {
   document.getElementById('inp-pin').value = SETTINGS.pin || '';
   document.getElementById('inp-url').value = SETTINGS.scriptUrl || '';
+  var pre = document.getElementById('script-code-pre');
+  if (pre) pre.textContent = SCRIPT_CODE.replace(/\\n/g, '\n');
   updateSheetsIndicator();
   showScreen('settings-screen');
 }
-
 function clearAllData() {
   if (!confirm('本当にすべてのデータを削除しますか？\nこの操作は取り消せません。')) return;
   if (!confirm('最終確認：全データを削除します。よろしいですか？')) return;
@@ -650,10 +605,7 @@ function openManager() {
 }
 function renderManager() {
   var t = today(); var past30 = [];
-  for (var d = 0; d < 30; d++) {
-    var dd = new Date(); dd.setDate(dd.getDate()-d);
-    past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate()));
-  }
+  for (var d = 0; d < 30; d++) { var dd = new Date(); dd.setDate(dd.getDate()-d); past30.push(dd.getFullYear()+'-'+p2(dd.getMonth()+1)+'-'+p2(dd.getDate())); }
   var todaySaved = 0; var todayNg = 0;
   for (var fi = 1; fi <= TOTAL_FORMS; fi++) {
     if (hasRecord(fi,t)) {
@@ -666,15 +618,12 @@ function renderManager() {
   for (var di0 = 0; di0 < past30.length; di0++) {
     for (var mfi = 1; mfi <= TOTAL_FORMS; mfi++) { if (hasRecord(mfi, past30[di0])) monthTotal++; }
   }
-  var dkeys = getDateKeys();
   var h = '<div class="mgr-stat-grid">';
   h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--green)">'+todaySaved+'/'+TOTAL_FORMS+'</div><div class="mgr-stat-lbl">今日の保存済み様式</div></div>';
   h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:'+(todayNg>0?'var(--red)':'var(--green)')+'">'+todayNg+'</div><div class="mgr-stat-lbl">今日の異常件数</div></div>';
   h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--navy)">'+monthTotal+'</div><div class="mgr-stat-lbl">過去30日の総点検数</div></div>';
-  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--gold)">'+dkeys.length+'</div><div class="mgr-stat-lbl">記録のある日数</div></div>';
-  h += '</div>';
-  h += '<div class="dash-section"><div class="dash-sec-title">本日（'+fmtD(t)+'）の点検状況</div>';
-  h += '<div style="overflow-x:auto"><table class="mgr-table"><thead><tr><th>様式</th><th>名称</th><th>状態</th><th>正常</th><th>異常</th></tr></thead><tbody>';
+  h += '<div class="mgr-stat-box"><div class="mgr-stat-num" style="color:var(--gold)">'+getDateKeys().length+'</div><div class="mgr-stat-lbl">記録のある日数</div></div>';
+  h += '</div><div style="overflow-x:auto"><table class="mgr-table"><thead><tr><th>様式</th><th>名称</th><th>状態</th><th>正常</th><th>異常</th></tr></thead><tbody>';
   for (var i = 1; i <= TOTAL_FORMS; i++) {
     var saved = hasRecord(i,t); var rec2 = getRecord(i,t);
     var ok2 = 0; var ng2 = 0; var k2 = Object.keys(rec2);
@@ -684,37 +633,8 @@ function renderManager() {
     h += '<td style="color:var(--green);font-weight:700">'+(saved?ok2:'-')+'</td>';
     h += '<td>'+(saved&&ng2>0?('<span class="badge-ng">'+ng2+'</span>'):saved?'<span style="color:var(--green)">0</span>':'-')+'</td></tr>';
   }
-  h += '</tbody></table></div></div>';
-  h += '<div class="dash-section"><div class="dash-sec-title">過去30日間　様式別完了状況</div>';
-  for (var pfi = 1; pfi <= TOTAL_FORMS; pfi++) {
-    var cnt = 0;
-    for (var pdi = 0; pdi < past30.length; pdi++) { if (hasRecord(pfi, past30[pdi])) cnt++; }
-    var pct = Math.round(cnt/30*100); var fc = pct>=80?'pf-hi':(pct>=50?'pf-mid':'pf-lo');
-    h += '<div class="prog-card"><div class="prog-name">'+ICONS[pfi]+' 様式'+pfi+'　'+TITLES[pfi]+'</div>';
-    h += '<div class="prog-bar"><div class="prog-fill '+fc+'" style="width:'+pct+'%"></div></div>';
-    h += '<div class="prog-lbl"><span>'+cnt+'/30日完了</span><span>達成率 '+pct+'%</span></div></div>';
-  }
-  h += '</div>';
-  var anoms2 = [];
-  for (var ari = 0; ari < past30.length; ari++) {
-    var arD = past30[ari]; if (!DB[arD]) continue;
-    for (var arfi = 1; arfi <= TOTAL_FORMS; arfi++) {
-      var arec = getRecord(arfi, arD); var arkeys = Object.keys(arec);
-      for (var arki = 0; arki < arkeys.length; arki++) {
-        if (isNg(arec[arkeys[arki]])) anoms2.push({date:arD,form:arfi,val:arec[arkeys[arki]]});
-      }
-    }
-  }
-  if (anoms2.length > 0) {
-    h += '<div class="dash-section"><div class="dash-sec-title">⚠ 異常記録（過去30日間）</div>';
-    for (var aai = 0; aai < anoms2.length; aai++) {
-      var aan = anoms2[aai];
-      h += '<div class="anomaly-card"><div class="anomaly-date">'+fmtD(aan.date)+'　様式'+aan.form+'</div>';
-      h += '<div class="anomaly-text">'+ICONS[aan.form]+' '+TITLES[aan.form]+'　→　'+aan.val+'</div></div>';
-    }
-    h += '</div>';
-  }
-  h += '<div style="padding:0 0 20px"><button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
+  h += '</tbody></table></div>';
+  h += '<div style="padding:14px 0"><button class="settings-btn green" onclick="exportCSV()">📥 全データをCSVでダウンロード</button></div>';
   document.getElementById('manager-body').innerHTML = h;
 }
 
@@ -776,7 +696,7 @@ function mkHdr(fid, fields) {
   return h+'</div>';
 }
 
-// ===== FORMS 1〜10 (original) =====
+// ===== FORMS 1〜10 =====
 function form1(fid) {
   var h = mkHdr(fid,[['date','日付','date'],['weather','天候','text','晴れ/曇り/雨'],['time','点検時間','time'],['checker','点検者','text'],['manager','当日責任者','text']]);
   h += mkSec(fid,'🔒 安全','h-safety',[{id:'q01',t:'正面玄関、裏口、通用口は正常か',o:['正常','異常']},{id:'q02',t:'各区域の扉・窓は正常か',o:['正常','異常']},{id:'q03',t:'厨房の火気、ガス、電源は正常か',o:['正常','異常']},{id:'q04',t:'給湯設備は正常か',o:['正常','異常']},{id:'q05',t:'漏水、漏電、異臭はないか',o:['なし','あり']},{id:'q06',t:'消防通路は確保されているか',o:['はい','いいえ']},{id:'q07',t:'浴場・浴室床面に滑りやすい箇所はないか',o:['正常','異常']}]);
@@ -802,8 +722,8 @@ function form3(fid) {
   h += mkSec(fid,'🧹 清掃・寝具','h-quality',[{id:'q01',t:'床・机・窓台・ゴミ箱の清掃状態',o:['良好','要対応']},{id:'q02',t:'シーツ・布団カバー・枕カバーの整え方',o:['良好','交換必要']}]);
   h += mkSec(fid,'🚿 浴室・トイレ','h-safety',[{id:'q03',t:'浴槽・シャワー・排水・異臭の有無',o:['良好','異常']},{id:'q04',t:'トイレ清掃・紙類・異臭の有無',o:['良好','補充必要']},{id:'q05',t:'給湯・出湯・水温・排水の状態',o:['正常','異常']}]);
   h += mkSec(fid,'⚙ 設備・備品','h-facility',[{id:'q06',t:'冷暖房・リモコンの作動確認',o:['正常','異常']},{id:'q07',t:'全照明器具の点灯確認',o:['正常','異常']},{id:'q08',t:'施錠・開閉・窓・カーテンの状態',o:['正常','異常']},{id:'q09',t:'タオル・歯ブラシ・スリッパ・飲用水等',o:['揃っている','補充必要']}]);
-  h += mkSec(fid,'📱 通信・AV機器','h-quality',[{id:'q10',t:'Wi-Fi SSID表示・接続可否',o:['正常','異常']},{id:'q11',t:'通信速度・接続安定性',o:['正常','異常']},{id:'q12',t:'テレビ本体（電源・映像・音声・リモコン）',o:['正常','異常']},{id:'q13',t:'テレビネット機能（YouTube等）',o:['正常','異常']}]);
-  h += mkSec(fid,'🔒 安全・最終確認','h-security',[{id:'q14',t:'電源・コンセント・滑り・破損の有無',o:['正常','異常']},{id:'q15',t:'異臭・湿気臭・煙草臭の有無',o:['なし','あり']},{id:'q16',t:'特別要望（VIP・アレルギー等）対応確認',o:['なし','あり']},{id:'q17',t:'入室可否',o:['可能','是正後可能']}]);
+  h += mkSec(fid,'📱 通信・AV機器','h-quality',[{id:'q10',t:'Wi-Fi接続確認',o:['正常','異常']},{id:'q11',t:'テレビ・リモコン確認',o:['正常','異常']}]);
+  h += mkSec(fid,'🔒 安全・最終確認','h-security',[{id:'q12',t:'電源・コンセント・破損の有無',o:['正常','異常']},{id:'q13',t:'異臭の有無',o:['なし','あり']},{id:'q14',t:'入室可否',o:['可能','是正後可能']}]);
   h += mkTa(fid,'note','異常・特記事項',3);
   h += mkSig(fid,['点検者署名','最終確認者署名']);
   return h;
@@ -816,20 +736,18 @@ function form4(fid) {
     var z = zones[zi];
     tr += '<tr><td style="text-align:left">'+z.lb+'</td><td><input class="tiny-inp" type="number" placeholder="℃" data-key="'+gk(fid,'tmp_'+z.id)+'" oninput="onInp(this)"></td><td><input class="tiny-inp" type="number" placeholder="%" data-key="'+gk(fid,'hum_'+z.id)+'" oninput="onInp(this)"></td><td>'+mkOpts(fid,'rng_'+z.id,['範囲内','範囲外'],'padding:4px 9px;font-size:11px')+'</td></tr>';
   }
-  h += '<div class="fcard"><div class="fcard-head h-art">温湿度記録（目標：温度20〜24℃ / 湿度45〜55%）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">区域</th><th>温度(℃)</th><th>湿度(%)</th><th>目標範囲</th></tr></thead><tbody>'+tr+'</tbody></table></div></div>';
+  h += '<div class="fcard"><div class="fcard-head h-art">温湿度記録（目標：20〜24℃ / 45〜55%）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">区域</th><th>温度(℃)</th><th>湿度(%)</th><th>判定</th></tr></thead><tbody>'+tr+'</tbody></table></div></div>';
   h += '<div class="fcard"><div class="fcard-head h-art">展示品状態確認</div>';
   for (var an = 1; an <= 4; an++) {
-    h += '<div class="check-item" style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><input class="tiny-inp" type="text" placeholder="番号" data-key="'+gk(fid,'art_no_'+an)+'" oninput="onInp(this)" style="width:60px"><input class="field-inp" type="text" placeholder="作品名" data-key="'+gk(fid,'art_nm_'+an)+'" oninput="onInp(this)" style="min-width:90px">'+mkOpts(fid,'art_st_'+an,['正常','異常'],'padding:4px 10px;font-size:11px')+mkOpts(fid,'art_ph_'+an,['撮影済','なし'],'padding:4px 9px;font-size:11px')+'</div>';
+    h += '<div class="check-item" style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><input class="tiny-inp" type="text" placeholder="番号" data-key="'+gk(fid,'art_no_'+an)+'" oninput="onInp(this)" style="width:55px"><input class="field-inp" type="text" placeholder="作品名" data-key="'+gk(fid,'art_nm_'+an)+'" oninput="onInp(this)">'+mkOpts(fid,'art_st_'+an,['正常','異常'],'padding:4px 10px;font-size:11px')+'</div>';
   }
-  var ex = [{id:'bugs',t:'虫害確認',o:['異常なし','虫害あり']},{id:'mold',t:'カビ・水濡れ・変色',o:['なし','あり']},{id:'light',t:'照明異常',o:['なし','あり']},{id:'touch',t:'顧客接触リスク',o:['なし','あり']}];
-  for (var ei = 0; ei < ex.length; ei++) h += '<div class="check-item"><div class="check-lbl">'+ex[ei].t+'</div>'+mkOpts(fid,ex[ei].id,ex[ei].o)+'</div>';
-  h += '</div>';
+  h += mkSec(fid,'その他確認','h-art',[{id:'bugs',t:'虫害確認',o:['異常なし','虫害あり']},{id:'mold',t:'カビ・水濡れ・変色',o:['なし','あり']},{id:'light',t:'照明異常',o:['なし','あり']}]);
   h += mkTa(fid,'action','対応必要事項',3);
   h += mkSig(fid,['点検者署名','責任者確認']);
   return h;
 }
 function form5(fid) {
-  var h = mkHdr(fid,[['month','対象月','text','例：2026年6月'],['manager','環境美化責任者','text']]);
+  var h = mkHdr(fid,[['month','対象月','text','例：2026年6月'],['manager','責任者','text']]);
   var areas = ['屋外','屋内','美術館周辺','玄関','テラス・庭園'];
   for (var ai = 0; ai < areas.length; ai++) {
     var p = 'pl'+ai;
@@ -837,7 +755,6 @@ function form5(fid) {
     h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">植物状態</span>'+mkOpts(fid,p+'_st',['良好','要対応'],'padding:5px 13px;font-size:12px')+'</div>';
     h += '<div style="display:flex;gap:10px;flex-wrap:wrap"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--muted)">水やり</span>'+mkOpts(fid,p+'_wt',['実施','不要'],'padding:5px 10px;font-size:11px')+'</div><div style="display:flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--muted)">枯葉処理</span>'+mkOpts(fid,p+'_lf',['実施','不要'],'padding:5px 10px;font-size:11px')+'</div></div>';
     h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">病虫害</span>'+mkOpts(fid,p+'_ps',['なし','あり'],'padding:5px 13px;font-size:12px')+'</div>';
-    h += '<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--muted);min-width:52px">担当者</span><input class="field-inp" type="text" data-key="'+gk(fid,p+'_sf')+'" oninput="onInp(this)" placeholder="氏名"></div>';
     h += '</div></div>';
   }
   h += mkTa(fid,'improve','今週改善が必要な植物',3);
@@ -845,61 +762,50 @@ function form5(fid) {
   return h;
 }
 function form6(fid) {
-  var h = mkHdr(fid,[['date','申請日','date'],['reporter','申請者','text'],['found_time','発見時間','time'],['location','場所','text']]);
-  var types = ['漏水','電気','空調','給湯','ネットワーク','施錠','厨房設備','浴場','車両','その他'];
+  var h = mkHdr(fid,[['date','申請日','date'],['reporter','申請者','text'],['location','場所','text']]);
+  var types = ['漏水','電気','空調','給湯','ネットワーク','施錠','厨房設備','浴場','その他'];
   h += '<div class="fcard"><div class="fcard-head h-facility">異常分類（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
   for (var i = 0; i < types.length; i++) h += mkTog(fid,'type',types[i],'padding:6px 12px;font-size:12px');
   h += '</div></div>';
   h += '<div class="fcard"><div class="fcard-head h-facility">緊急度</div><div class="check-item">'+mkOpts(fid,'level',['S級緊急','A級重要','B級一般','C級改善'],'padding:7px 12px')+'</div></div>';
-  var tfs = [['content','異常内容'],['temp','応急対応'],['contractor','修理業者'],['estimate','見積金額'],['approver','承認者'],['done_date','完了日']];
-  h += '<div class="fcard"><div class="fcard-head h-def">詳細情報</div>';
-  for (var ti = 0; ti < tfs.length; ti++) h += mkFld(fid,tfs[ti][0],tfs[ti][1],'text');
-  h += '<div style="padding:11px 15px"><label class="note-lbl">検収内容</label><textarea class="note-ta" rows="2" data-key="'+gk(fid,'check_detail')+'" oninput="onInp(this)"></textarea></div></div>';
-  h += mkSec(fid,'検収確認','h-def',[{id:'stop',t:'使用停止',o:['実施','未実施','不要']},{id:'fixed',t:'故障は修復されたか',o:['はい','いいえ']},{id:'safe',t:'安全に使用できるか',o:['はい','いいえ']},{id:'looks',t:'外観は回復したか',o:['はい','いいえ','該当なし']},{id:'extra',t:'追加修理は必要か',o:['不要','必要']},{id:'invoice',t:'請求書・領収書は保存したか',o:['はい','いいえ']}]);
+  h += mkTa(fid,'content','異常内容',3);
+  h += mkTa(fid,'temp','応急対応',2);
+  h += mkFld(fid,'contractor','修理業者','text');
+  h += mkFld(fid,'estimate','見積金額','text');
+  h += mkFld(fid,'approver','承認者','text');
+  h += mkSec(fid,'検収確認','h-def',[{id:'fixed',t:'故障は修復されたか',o:['はい','いいえ']},{id:'safe',t:'安全に使用できるか',o:['はい','いいえ']},{id:'invoice',t:'請求書・領収書は保存したか',o:['はい','いいえ']}]);
   h += mkSig(fid,['検収者署名','責任者確認']);
   return h;
 }
 function form7(fid) {
-  var h = mkHdr(fid,[['reg_date','登録日','date'],['recorder','登録者','text'],['resp','接遇責任者','text'],['guest','顧客氏名','text'],['company','所属・会社名','text'],['count','人数','text'],['visit_date','来館日','date'],['arrive','来館時間','time'],['leave','退館時間','time']]);
+  var h = mkHdr(fid,[['reg_date','登録日','date'],['recorder','登録者','text'],['guest','顧客氏名','text'],['company','所属・会社名','text'],['count','人数','text'],['visit_date','来館日','date'],['arrive','来館時間','time'],['leave','退館時間','time']]);
   var purps = ['宿泊','見学','企業研修','美術館','飲食','協業打合せ','VIP接遇','その他'];
   h += '<div class="fcard"><div class="fcard-head h-other">接遇目的（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
   for (var i = 0; i < purps.length; i++) h += mkTog(fid,'purp',purps[i],'padding:6px 12px;font-size:12px');
   h += '</div></div>';
-  h += mkSec(fid,'サービス内容','h-quality',[{id:'meal_b',t:'朝食',o:['あり','なし']},{id:'meal_l',t:'昼食',o:['あり','なし']},{id:'meal_d',t:'夕食',o:['あり','なし']},{id:'meal_t',t:'茶菓',o:['あり','なし']},{id:'stay',t:'宿泊',o:['あり','なし']},{id:'fee',t:'料金区分',o:['通常料金','割引','無料','確認中']},{id:'rank',t:'接遇区分',o:['通常','重要','VIP']}]);
-  var tfs7 = [['room','客室手配'],['special_req','特別要望'],['allergy','食事制限・アレルギー'],['approver','承認者']];
-  h += '<div class="fcard"><div class="fcard-head h-def">詳細・特記事項</div>';
-  for (var ti = 0; ti < tfs7.length; ti++) h += '<div style="padding:10px 15px;border-bottom:1px solid #f5f5f5"><label class="note-lbl">'+tfs7[ti][1]+'</label><textarea class="note-ta" rows="2" data-key="'+gk(fid,tfs7[ti][0])+'" oninput="onInp(this)"></textarea></div>';
-  h += '</div>';
-  h += mkSec(fid,'接遇後の記録','h-quality',[{id:'satisfaction',t:'顧客満足度',o:['良好','普通','要改善']}]);
-  h += mkTa(fid,'opinion','顧客意見',3);
-  h += mkTa(fid,'followup','今後のフォロー事項',2);
+  h += mkSec(fid,'サービス内容','h-quality',[{id:'meal_b',t:'朝食',o:['あり','なし']},{id:'meal_l',t:'昼食',o:['あり','なし']},{id:'meal_d',t:'夕食',o:['あり','なし']},{id:'stay',t:'宿泊',o:['あり','なし']},{id:'fee',t:'料金区分',o:['通常料金','割引','無料']},{id:'rank',t:'接遇区分',o:['通常','重要','VIP']}]);
+  h += mkTa(fid,'special_req','特別要望',2);
+  h += mkTa(fid,'opinion','顧客意見',2);
   h += mkSig(fid,['責任者署名']);
   return h;
 }
 function form8(fid) {
-  var h = mkHdr(fid,[['date','申請日','date'],['applicant','申請者','text'],['guest','顧客氏名・所属','text'],['visit_date','接遇日','date'],['count','人数','text'],['normal_price','通常価格','text','例：50,000円'],['applied_price','申請後価格','text'],['discount','減免金額','text']]);
-  var cats = ['無料宿泊','無料飲食','割引','無料見学','無料会議室','体験提供','その他'];
+  var h = mkHdr(fid,[['date','申請日','date'],['applicant','申請者','text'],['guest','顧客氏名・所属','text'],['visit_date','接遇日','date'],['count','人数','text'],['normal_price','通常価格','text'],['applied_price','申請後価格','text']]);
+  var cats = ['無料宿泊','無料飲食','割引','無料見学','無料会議室','その他'];
   h += '<div class="fcard"><div class="fcard-head h-other">申請区分（複数選択可）</div><div style="padding:11px 13px;display:flex;flex-wrap:wrap;gap:6px">';
   for (var i = 0; i < cats.length; i++) h += mkTog(fid,'cat',cats[i],'padding:6px 12px;font-size:12px');
   h += '</div></div>';
-  var approvals = [{id:'mgr',lb:'支配人'},{id:'ceo',lb:'会長／代表者'}];
-  h += '<div class="fcard"><div class="fcard-head h-safety">承認欄</div>';
-  for (var ai = 0; ai < approvals.length; ai++) {
-    var ap = approvals[ai];
-    h += '<div class="check-item"><div class="check-lbl" style="font-weight:700">'+ap.lb+'</div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px">'+mkOpts(fid,'ap_'+ap.id,['承認','否認','要修正'])+'<input style="border:1.5px solid var(--border);border-radius:7px;padding:4px 7px;font-size:12px;font-family:inherit;outline:none" type="date" data-key="'+gk(fid,'ap_date_'+ap.id)+'" oninput="onInp(this)"></div></div>';
-  }
-  h += '<div class="check-item"><div class="check-lbl">実施結果</div>'+mkOpts(fid,'result',['実施済','取消','変更'])+'</div></div>';
+  h += mkSec(fid,'承認欄','h-safety',[{id:'ap_mgr',t:'支配人承認',o:['承認','否認','要修正']},{id:'ap_ceo',t:'会長／代表者承認',o:['承認','否認','要修正']},{id:'result',t:'実施結果',o:['実施済','取消','変更']}]);
   h += mkTa(fid,'reason','申請理由',3);
-  h += mkTa(fid,'remarks','備考',2);
   h += mkSig(fid,['保管者']);
   return h;
 }
 function form9(fid) {
   var h = mkHdr(fid,[['name','台風名・種別','text'],['expected','予想影響日','date'],['manager','責任者','text']]);
-  h += mkSec(fid,'72時間前点検','h-typhoon',[{id:'t72a',t:'気象情報確認',o:['完了','未完了']},{id:'t72b',t:'予約制限判断',o:['完了','未完了']},{id:'t72c',t:'宿泊顧客行程確認',o:['完了','該当なし']},{id:'t72d',t:'従業員勤務・帰宅安全確認',o:['完了','未完了']},{id:'t72e',t:'緊急連絡先確認',o:['完了','未完了']}]);
-  h += mkSec(fid,'48時間前点検','h-typhoon',[{id:'t48a',t:'扉・窓確認',o:['完了','異常']},{id:'t48b',t:'屋根、バルコニー、テラス確認',o:['完了','異常']},{id:'t48c',t:'排水溝確認',o:['完了','異常']},{id:'t48d',t:'車両安全位置確認',o:['完了','未完了']},{id:'t48e',t:'外灯、看板、植木鉢確認',o:['完了','異常']}]);
-  h += mkSec(fid,'24時間前点検','h-typhoon',[{id:'t24a',t:'椅子収納',o:['完了','該当なし']},{id:'t24b',t:'テーブル固定',o:['完了','該当なし']},{id:'t24c',t:'屋外設備固定',o:['完了','該当なし']},{id:'t24d',t:'ゴミ箱・工具収納',o:['完了','該当なし']},{id:'t24e',t:'重要区域撮影',o:['完了','未完了']},{id:'t24f',t:'応急物資確認',o:['完了','未完了']}]);
-  h += mkSec(fid,'台風通過後点検','h-safety',[{id:'taa',t:'人員安全',o:['正常','異常']},{id:'tab',t:'建物外観',o:['正常','異常']},{id:'tac',t:'漏水',o:['なし','あり']},{id:'tad',t:'電気',o:['正常','異常']},{id:'tae',t:'美術館',o:['正常','異常']},{id:'taf',t:'車両',o:['正常','異常']},{id:'tag',t:'植物・庭園',o:['正常','異常']},{id:'tah',t:'修理必要事項',o:['なし','あり']},{id:'tai',t:'台風後写真撮影',o:['撮影済','未撮影']},{id:'taj',t:'報告書提出の要否',o:['必要','不要']}]);
+  h += mkSec(fid,'72時間前点検','h-typhoon',[{id:'t72a',t:'気象情報確認',o:['完了','未完了']},{id:'t72b',t:'予約制限判断',o:['完了','未完了']},{id:'t72c',t:'緊急連絡先確認',o:['完了','未完了']}]);
+  h += mkSec(fid,'48時間前点検','h-typhoon',[{id:'t48a',t:'扉・窓確認',o:['完了','異常']},{id:'t48b',t:'屋根・バルコニー確認',o:['完了','異常']},{id:'t48c',t:'排水溝確認',o:['完了','異常']},{id:'t48d',t:'外灯・看板・植木鉢確認',o:['完了','異常']}]);
+  h += mkSec(fid,'24時間前点検','h-typhoon',[{id:'t24a',t:'屋外設備収納・固定',o:['完了','未完了']},{id:'t24b',t:'重要区域撮影',o:['完了','未完了']},{id:'t24c',t:'応急物資確認',o:['完了','未完了']}]);
+  h += mkSec(fid,'台風通過後点検','h-safety',[{id:'taa',t:'人員安全',o:['正常','異常']},{id:'tab',t:'建物外観',o:['正常','異常']},{id:'tac',t:'漏水',o:['なし','あり']},{id:'tad',t:'電気',o:['正常','異常']},{id:'tae',t:'美術館',o:['正常','異常']},{id:'taf',t:'修理必要事項',o:['なし','あり']}]);
   h += mkSig(fid,['責任者署名','管理者確認']);
   return h;
 }
@@ -910,82 +816,47 @@ function form10(fid) {
   for (var i = 0; i < types10.length; i++) h += mkTog(fid,'type10',types10[i],'padding:6px 12px;font-size:12px');
   h += '</div></div>';
   h += '<div class="fcard"><div class="fcard-head h-other">緊急度</div><div class="check-item">'+mkOpts(fid,'level',['S級','A級','B級','C級'],'padding:7px 16px')+'</div></div>';
-  h += mkSec(fid,'対応確認','h-other',[{id:'police',t:'警察・消防・救急への連絡',o:['あり','なし']},{id:'cust_exp',t:'顧客への説明',o:['済','未了','該当なし']},{id:'photo',t:'写真・動画記録',o:['あり','なし']},{id:'repair',t:'修理必要性',o:['あり','なし']},{id:'mgr',t:'管理者判断の要否',o:['必要','不要']}]);
+  h += mkSec(fid,'対応確認','h-other',[{id:'police',t:'警察・消防・救急への連絡',o:['あり','なし']},{id:'cust_exp',t:'顧客への説明',o:['済','未了','該当なし']},{id:'photo',t:'写真・動画記録',o:['あり','なし']}]);
   h += mkTa(fid,'background','発生経緯',3);
-  h += mkTa(fid,'cause','初期原因',2);
   h += mkTa(fid,'action_taken','実施済対応',2);
   h += mkTa(fid,'prevent1','再発防止策',2);
   h += mkSig(fid,['支配人確認','会長／代表者確認']);
   return h;
 }
 
-// ===== FORMS 11〜16 (新規追加) =====
-
-// 様式11: 今日の運営指示
+// ===== FORMS 11〜16 =====
 function form11(fid) {
   var h = mkHdr(fid,[['date','日付','date'],['author','作成者','text'],['dept','対象部署','text','例：フロント全員']]);
   h += '<div class="fcard"><div class="fcard-head h-ops">優先度</div><div class="check-item">'+mkOpts(fid,'priority',['通常','重要','緊急'],'padding:9px 22px;font-size:14px')+'</div></div>';
   h += mkTa(fid,'instruction','本日の指示・連絡事項',5);
   h += mkTa(fid,'notice','注意事項・特記事項',3);
   h += mkSec(fid,'確認状況','h-ops',[{id:'conf1',t:'スタッフへの周知',o:['完了','未了']},{id:'conf2',t:'責任者確認',o:['完了','未了']}]);
-  h += mkFld(fid,'approver','承認者','text');
   h += mkSig(fid,['作成者署名','責任者確認']);
   return h;
 }
-
-// 様式12: 清掃確認表
 function form12(fid) {
   var h = mkHdr(fid,[['date','日付','date'],['shift','シフト','text','午前/午後/夜間'],['supervisor','担当責任者','text']]);
-  var areas = [
-    {id:'lobby',t:'ロビー・エントランス',o:['完了','未了','要対応']},
-    {id:'corridor',t:'廊下・階段',o:['完了','未了','要対応']},
-    {id:'toilet_m',t:'男性トイレ',o:['完了','未了','要対応']},
-    {id:'toilet_f',t:'女性トイレ',o:['完了','未了','要対応']},
-    {id:'common',t:'共用スペース・ラウンジ',o:['完了','未了','要対応']},
-    {id:'entrance',t:'玄関・アプローチ',o:['完了','未了','要対応']},
-    {id:'parking',t:'駐車場・外周',o:['完了','未了','要対応']},
-    {id:'kitchen_area',t:'厨房周辺',o:['完了','未了','要対応']},
-    {id:'museum_area',t:'美術館エリア',o:['完了','未了','要対応']},
-    {id:'garden',t:'庭園・テラス',o:['完了','未了','要対応']}
-  ];
-  h += mkSec(fid,'🧹 清掃エリア別確認','h-quality',areas);
-  h += mkSec(fid,'備品・消耗品','h-def',[
-    {id:'sup_paper',t:'トイレットペーパー補充',o:['完了','要補充']},
-    {id:'sup_soap',t:'ハンドソープ補充',o:['完了','要補充']},
-    {id:'sup_trash',t:'ゴミ袋交換',o:['完了','未了']}
-  ]);
+  var areas = [{id:'lobby',t:'ロビー・エントランス'},{id:'corridor',t:'廊下・階段'},{id:'toilet_m',t:'男性トイレ'},{id:'toilet_f',t:'女性トイレ'},{id:'common',t:'共用スペース'},{id:'entrance',t:'玄関・アプローチ'},{id:'parking',t:'駐車場・外周'},{id:'kitchen_area',t:'厨房周辺'},{id:'museum_area',t:'美術館エリア'},{id:'garden',t:'庭園・テラス'}];
+  h += mkSec(fid,'🧹 清掃エリア別確認','h-quality',areas.map(function(a){ return {id:a.id,t:a.t,o:['完了','未了','要対応']}; }));
+  h += mkSec(fid,'備品・消耗品','h-def',[{id:'sup_paper',t:'トイレットペーパー補充',o:['完了','要補充']},{id:'sup_soap',t:'ハンドソープ補充',o:['完了','要補充']},{id:'sup_trash',t:'ゴミ袋交換',o:['完了','未了']}]);
   h += mkTa(fid,'issues','汚損・異常箇所の記録',3);
   h += mkSig(fid,['担当者署名','責任者確認']);
   return h;
 }
-
-// 様式13: 飲食・厨房管理表
 function form13(fid) {
   var h = mkHdr(fid,[['date','日付','date'],['staff','担当者','text'],['meal','対象食事','text','朝食/昼食/夕食']]);
-  var fridges = [
-    {id:'fridge_a',lb:'冷蔵庫A'},{id:'fridge_b',lb:'冷蔵庫B'},{id:'freezer_a',lb:'冷凍庫A'},{id:'freezer_b',lb:'冷凍庫B'}
-  ];
+  var fridges = [{id:'fridge_a',lb:'冷蔵庫A'},{id:'fridge_b',lb:'冷蔵庫B'},{id:'freezer_a',lb:'冷凍庫A'},{id:'freezer_b',lb:'冷凍庫B'}];
   var tr = '';
   for (var fi = 0; fi < fridges.length; fi++) {
     var f = fridges[fi];
     tr += '<tr><td style="text-align:left;font-weight:600">'+f.lb+'</td><td><input class="tiny-inp" type="number" step="0.1" placeholder="℃" data-key="'+gk(fid,'tmp_'+f.id)+'" oninput="onInp(this)"></td><td>'+mkOpts(fid,'judge_'+f.id,['正常','警告','異常'],'padding:4px 8px;font-size:11px')+'</td></tr>';
   }
   h += '<div class="fcard"><div class="fcard-head h-kitchen">🌡️ 温度管理（冷蔵：0〜10℃ / 冷凍：-18℃以下）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">機器</th><th>温度(℃)</th><th>判定</th></tr></thead><tbody>'+tr+'</tbody></table></div></div>';
-  h += mkSec(fid,'🧼 衛生チェック','h-kitchen',[
-    {id:'hw',t:'調理前の手洗い・消毒',o:['実施','未実施']},
-    {id:'exp',t:'食材の賞味期限確認',o:['確認済','異常あり']},
-    {id:'tool',t:'調理器具の洗浄・消毒',o:['完了','未了']},
-    {id:'floor',t:'床・排水口の清掃',o:['完了','未了']},
-    {id:'trash',t:'ゴミ処理・分別',o:['完了','未了']},
-    {id:'pest',t:'害虫・ネズミの痕跡',o:['なし','あり']}
-  ]);
+  h += mkSec(fid,'🧼 衛生チェック','h-kitchen',[{id:'hw',t:'調理前の手洗い・消毒',o:['実施','未実施']},{id:'exp',t:'食材の賞味期限確認',o:['確認済','異常あり']},{id:'tool',t:'調理器具の洗浄・消毒',o:['完了','未了']},{id:'floor',t:'床・排水口の清掃',o:['完了','未了']},{id:'pest',t:'害虫・ネズミの痕跡',o:['なし','あり']}]);
   h += mkTa(fid,'stock_memo','在庫・発注メモ',3);
-  h += mkTa(fid,'issues','異常・特記事項',2);
   h += mkSig(fid,['担当者署名','責任者確認']);
   return h;
 }
-
-// 様式14: 鍵管理表
 function form14(fid) {
   var h = mkHdr(fid,[['date','日付','date'],['manager','鍵管理責任者','text']]);
   var keys = ['マスターキー','101号室','102号室','201号室','202号室','美術館','事務室','倉庫','厨房','車両'];
@@ -999,35 +870,25 @@ function form14(fid) {
   }
   h += '<div class="fcard"><div class="fcard-head h-key">🗝️ 鍵の保管状況</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">鍵名</th><th>状態</th><th>借用者</th><th>時刻</th></tr></thead><tbody>'+tr+'</tbody></table></div></div>';
   h += mkTa(fid,'note','鍵の紛失・異常・特記事項',2);
-  h += mkSig(fid,['責任者署名','最終確認者']);
+  h += mkSig(fid,['責任者署名']);
   return h;
 }
-
-// 様式15: 購入・立替精算申請書
 function form15(fid) {
   var h = mkHdr(fid,[['date','申請日','date'],['buyer','購入者','text'],['approver','承認者','text']]);
-  var items_rows = '';
+  var ir = '';
   for (var ii = 1; ii <= 5; ii++) {
-    items_rows += '<tr><td><input class="field-inp" type="text" data-key="'+gk(fid,'item'+ii)+'" oninput="onInp(this)" placeholder="品目名" style="min-width:90px"></td>';
-    items_rows += '<td><input class="tiny-inp" type="number" data-key="'+gk(fid,'amt'+ii)+'" oninput="onInp(this)" placeholder="¥" style="width:80px"></td>';
-    items_rows += '<td><input class="tiny-inp" type="text" data-key="'+gk(fid,'store'+ii)+'" oninput="onInp(this)" placeholder="購入先" style="width:80px"></td></tr>';
+    ir += '<tr><td><input class="field-inp" type="text" data-key="'+gk(fid,'item'+ii)+'" oninput="onInp(this)" placeholder="品目名" style="min-width:80px"></td>';
+    ir += '<td><input class="tiny-inp" type="number" data-key="'+gk(fid,'amt'+ii)+'" oninput="onInp(this)" placeholder="¥" style="width:75px"></td>';
+    ir += '<td><input class="tiny-inp" type="text" data-key="'+gk(fid,'store'+ii)+'" oninput="onInp(this)" placeholder="購入先" style="width:75px"></td></tr>';
   }
-  h += '<div class="fcard"><div class="fcard-head h-expense">💴 購入品目（最大5件）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">品目</th><th>金額(円)</th><th>購入先</th></tr></thead><tbody>'+items_rows+'</tbody></table></div></div>';
-  h += mkFld(fid,'total','合計金額','text','自動計算または手入力');
+  h += '<div class="fcard"><div class="fcard-head h-expense">💴 購入品目（最大5件）</div><div style="overflow-x:auto;padding:10px"><table class="tbl"><thead><tr><th style="text-align:left">品目</th><th>金額(円)</th><th>購入先</th></tr></thead><tbody>'+ir+'</tbody></table></div></div>';
   h += mkSec(fid,'精算状態','h-expense',[{id:'status',t:'現在の状態',o:['申請中','承認済','精算済','却下']}]);
   h += mkTa(fid,'reason','購入理由・用途',3);
   h += mkSig(fid,['申請者署名','承認者署名']);
   return h;
 }
-
-// 様式16: 日報
 function form16(fid) {
-  var h = '<div class="fcard"><div class="fcard-head h-report">📝 日報</div>';
-  h += mkFld(fid,'date','日付','date');
-  h += mkFld(fid,'author','作成者','text');
-  h += mkFld(fid,'weather','天候','text','晴れ/曇り/雨');
-  h += mkFld(fid,'guests','宿泊者数','text','例：6名');
-  h += '</div>';
+  var h = mkHdr(fid,[['date','日付','date'],['author','作成者','text'],['weather','天候','text','晴れ/曇り/雨'],['guests','宿泊者数','text','例：6名']]);
   h += '<div class="fcard" style="padding:12px 14px"><button class="autofill-btn" onclick="autofillReport('+fid+')">📊 本日のデータを自動集計して下書き作成</button></div>';
   h += mkTa(fid,'main','本日の主な業務・特記事項',5);
   h += mkTa(fid,'issues','問題・課題',3);
@@ -1036,16 +897,11 @@ function form16(fid) {
   h += mkSig(fid,['作成者署名','責任者確認']);
   return h;
 }
-
 function autofillReport(fid) {
-  var t = today();
-  var lines = [];
-  var issues = [];
+  var t = today(); var lines = []; var issues = [];
   for (var i = 1; i <= 15; i++) {
     if (!hasRecord(i, t)) continue;
-    var rec = getRecord(i, t);
-    var ngItems = [];
-    var rkeys = Object.keys(rec);
+    var rec = getRecord(i, t); var ngItems = []; var rkeys = Object.keys(rec);
     for (var ki = 0; ki < rkeys.length; ki++) { if (isNg(rec[rkeys[ki]])) ngItems.push(rec[rkeys[ki]]); }
     if (ngItems.length > 0) issues.push(ICONS[i]+' 様式'+i+' '+TITLES[i]+'：'+ngItems.join('、'));
     lines.push(ICONS[i]+' '+TITLES[i]+'：保存済');
