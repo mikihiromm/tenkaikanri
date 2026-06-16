@@ -274,7 +274,7 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 </div>
 
 <script>
-var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheetName = "記録";\n    var sheet = ss.getSheetByName(sheetName);\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      var hdr = sheet.getRange(1,1,1,9);\n      hdr.setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n      sheet.setFrozenRows(1);\n      sheet.setColumnWidth(1,160);\n      sheet.setColumnWidth(4,180);\n      sheet.setColumnWidth(8,300);\n      sheet.setColumnWidth(9,400);\n    }\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級緊急","S級","A級","虫害あり","範囲外","未撮影","交換必要","貸出中","未精算","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","精算済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    var rowColor = ngCount > 0 ? "#fff3e0" : "#ffffff";\n    var lastRow = sheet.appendRow([new Date().toLocaleString("ja-JP"), date, Number(formId), formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    var newRow = sheet.getLastRow();\n    if (ngCount > 0) sheet.getRange(newRow,1,1,9).setBackground("#fff3e0");\n    return ContentService.createTextOutput(JSON.stringify({status:"ok",form:formName,ng:ngCount})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
+var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheetName = "記録";\n    var sheet = ss.getSheetByName(sheetName);\n\n    // 読み込みmode（管理者画面から全デバイスの記録を取得）\n    if (e.parameter.action === "read") {\n      var cb = e.parameter.cb || "onSheetsLoad";\n      if (!sheet) return ContentService.createTextOutput(cb+"({ok:true,rows:[]})").setMimeType(ContentService.MimeType.JAVASCRIPT);\n      var vals = sheet.getDataRange().getValues();\n      var rows = [];\n      for (var ri = 1; ri < vals.length; ri++) {\n        rows.push({savedAt:String(vals[ri][0]),date:String(vals[ri][1]),formId:Number(vals[ri][2]),formName:String(vals[ri][3]),checker:String(vals[ri][4]),okCount:Number(vals[ri][5]),ngCount:Number(vals[ri][6]),ngItems:String(vals[ri][7])});\n      }\n      return ContentService.createTextOutput(cb+"("+JSON.stringify({ok:true,rows:rows})+")").setMimeType(ContentService.MimeType.JAVASCRIPT);\n    }\n\n    // 書き込みmode（各iPadからの保存）\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      var hdr = sheet.getRange(1,1,1,9);\n      hdr.setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n      sheet.setFrozenRows(1);\n      sheet.setColumnWidth(1,160);\n      sheet.setColumnWidth(4,180);\n      sheet.setColumnWidth(8,300);\n      sheet.setColumnWidth(9,400);\n    }\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級絊急","S級","A級","虫害あり","範囲外","未撮影","交換必要","貸出中","未算定","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","算定済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    var lastRow2 = sheet.appendRow([new Date().toLocaleString("ja-JP"), date, Number(formId), formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    var newRow = sheet.getLastRow();\n    if (ngCount > 0) sheet.getRange(newRow,1,1,9).setBackground("#fff3e0");\n    return ContentService.createTextOutput(JSON.stringify({status:"ok",form:formName,ng:ngCount})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
 
 // ===== SETTINGS =====
 var SETTINGS = {pin:'0000', scriptUrl:''};
@@ -423,6 +423,70 @@ function postToSheets(fid, record, dateKey) {
   ].join('&');
   var img = new Image();
   img.src = url + '?' + params;
+}
+
+// ===== SHEETS読み込み（JSONP方式・全デバイス共有）=====
+var _sheetsRows = [];
+window.onSheetsLoad = function(data) {
+  _sheetsRows = (data && data.rows) || [];
+  renderSheetsPanel(_sheetsRows);
+};
+function loadFromSheets() {
+  var url = SETTINGS.scriptUrl;
+  if (!url) { alert('設定画面でApps Script URLを設定してください'); return; }
+  var el = document.getElementById('sheets-status');
+  if (el) el.innerHTML = '<span style="color:var(--navy)">📡 読み込み中...</span>';
+  var s = document.createElement('script');
+  s.id = '_sload'; s.onerror = function() {
+    if (el) el.innerHTML = '<span style="color:var(--red)">❌ 読み込み失敗（URLを確認してください）</span>';
+  };
+  s.src = url + '?action=read&cb=onSheetsLoad';
+  var old = document.getElementById('_sload'); if (old) old.parentNode.removeChild(old);
+  document.head.appendChild(s);
+}
+function renderSheetsPanel(rows) {
+  var el = document.getElementById('sheets-panel');
+  var st = document.getElementById('sheets-status');
+  if (!el) return;
+  if (rows.length === 0) {
+    if (st) st.innerHTML = '<span style="color:var(--muted)">📭 Sheetsに記録がありません</span>';
+    el.innerHTML = ''; return;
+  }
+  if (st) st.innerHTML = '<span style="color:var(--green)">✅ '+rows.length+'件を読み込みました（全デバイス合計）</span>';
+  // 日付×様式でグループ化
+  var byDate = {};
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i]; var dk = r.date || '不明';
+    if (!byDate[dk]) byDate[dk] = [];
+    byDate[dk].push(r);
+  }
+  var dates = Object.keys(byDate).sort().reverse();
+  var h = '';
+  for (var di = 0; di < dates.length; di++) {
+    var dk2 = dates[di]; var dayRows = byDate[dk2];
+    var totalNg = 0; for (var ri2=0;ri2<dayRows.length;ri2++) totalNg+=dayRows[ri2].ngCount;
+    h += '<div style="background:var(--card);border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)">';
+    h += '<div style="background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">';
+    h += '<span style="color:#fff;font-weight:700;font-size:14px">📅 '+dk2.replace(/-/g,'/')+'</span>';
+    var bdg = totalNg>0?'<span style="background:#ef4444;color:#fff;font-size:11px;padding:2px 8px;border-radius:8px">異常 '+totalNg+'件</span>':'<span style="background:#16a34a;color:#fff;font-size:11px;padding:2px 8px;border-radius:8px">✅ 正常</span>';
+    h += '<span style="display:flex;gap:6px;align-items:center"><span style="color:rgba(255,255,255,.7);font-size:11px">'+dayRows.length+'様式</span>'+bdg+'</span></div>';
+    h += '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    for (var ri3=0;ri3<dayRows.length;ri3++) {
+      var row = dayRows[ri3];
+      var bc2 = row.ngCount>0?'#fff3e0':'#f0faf4'; var tc2 = row.ngCount>0?'var(--orange)':'var(--green)';
+      h += '<div style="background:'+bc2+';border-radius:8px;padding:9px 10px;border-left:3px solid '+tc2+'">';
+      h += '<div style="font-size:10px;color:var(--muted)">様式'+row.formId+'</div>';
+      h += '<div style="font-size:12px;font-weight:700;color:var(--text)">'+(ICONS[row.formId]||'📋')+' '+row.formName+'</div>';
+      if (row.checker) h += '<div style="font-size:10px;color:var(--muted);margin-top:2px">👤 '+row.checker+'</div>';
+      if (row.ngCount>0) h += '<div style="font-size:10px;color:var(--red);margin-top:3px;font-weight:700">異常 '+row.ngCount+'件</div>';
+      else h += '<div style="font-size:10px;color:var(--green);margin-top:3px">✅ 正常 '+row.okCount+'件</div>';
+      if (row.ngItems) h += '<div style="font-size:9px;color:var(--orange);margin-top:2px;line-height:1.4">'+row.ngItems+'</div>';
+      if (row.savedAt) h += '<div style="font-size:9px;color:var(--muted);margin-top:4px">保存:'+row.savedAt+'</div>';
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
+  el.innerHTML = h;
 }
 
 function clearDraft() {
@@ -778,6 +842,15 @@ function renderManager() {
   var d0 = new Date(); var ds = d0.getFullYear()+'年'+(d0.getMonth()+1)+'月'+d0.getDate()+'日';
 
   var h = '';
+
+  // ── Sheets読み込みバナー（複数デバイス共有） ──
+  h += '<div style="background:#e8f4fd;border-radius:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #3b82f6">';
+  h += '<div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px">☁️ 全デバイスの記録をSheetsから読み込む</div>';
+  h += '<div style="font-size:11px;color:#374151;margin-bottom:10px">スタッフのiPad・責任者デバイスから保存された全ての記録を表示します</div>';
+  h += '<button onclick="loadFromSheets()" style="background:#1d4ed8;color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%">📡 最新記録を読み込む</button>';
+  h += '<div id="sheets-status" style="font-size:11px;margin-top:8px;text-align:center"></div>';
+  h += '</div>';
+  h += '<div id="sheets-panel" style="margin-bottom:14px"></div>';
 
   // ── KPIバナー ──
   h += '<div style="background:var(--navy);margin:-14px -14px 16px;padding:18px 16px 16px">';
