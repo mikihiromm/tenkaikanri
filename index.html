@@ -227,6 +227,11 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
         <div class="settings-lbl">Apps Script URL</div>
         <div class="settings-sub">デプロイ後のURLを貼り付けてください</div>
         <input class="settings-inp" type="url" id="inp-url" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:11px;color:#92400e;line-height:1.8">
+          💡 <strong>全デバイスに自動配布する方法</strong><br>
+          上のURLを設定後、index.html内の<br>
+          <code style="background:#fef3c7;padding:1px 5px;border-radius:3px;font-size:11px">DEFAULT_SCRIPT_URL = ''</code> の <code style="background:#fef3c7;padding:1px 5px;border-radius:3px">''</code> の中に貼り付けてGitHubにアップロードすると、新しいiPadでも設定不要になります
+        </div>
       </div>
       <div class="settings-row">
         <div class="settings-lbl">📋 設定手順</div>
@@ -277,11 +282,17 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;background
 var SCRIPT_CODE = 'function doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheetName = "記録";\n    var sheet = ss.getSheetByName(sheetName);\n\n    // 読み込みmode（管理者画面から全デバイスの記録を取得）\n    if (e.parameter.action === "read") {\n      var cb = e.parameter.cb || "onSheetsLoad";\n      if (!sheet) return ContentService.createTextOutput(cb+"({ok:true,rows:[]})").setMimeType(ContentService.MimeType.JAVASCRIPT);\n      var vals = sheet.getDataRange().getValues();\n      var rows = [];\n      for (var ri = 1; ri < vals.length; ri++) {\n        rows.push({savedAt:String(vals[ri][0]),date:String(vals[ri][1]),formId:Number(vals[ri][2]),formName:String(vals[ri][3]),checker:String(vals[ri][4]),okCount:Number(vals[ri][5]),ngCount:Number(vals[ri][6]),ngItems:String(vals[ri][7])});\n      }\n      return ContentService.createTextOutput(cb+"("+JSON.stringify({ok:true,rows:rows})+")").setMimeType(ContentService.MimeType.JAVASCRIPT);\n    }\n\n    // 書き込みmode（各iPadからの保存）\n    if (!sheet) {\n      sheet = ss.insertSheet(sheetName);\n      sheet.appendRow(["保存日時","記録日","様式番号","様式名","点検者","正常件数","異常件数","異常内容","全データ(JSON)"]);\n      var hdr = sheet.getRange(1,1,1,9);\n      hdr.setFontWeight("bold").setBackground("#1a2744").setFontColor("#ffffff");\n      sheet.setFrozenRows(1);\n      sheet.setColumnWidth(1,160);\n      sheet.setColumnWidth(4,180);\n      sheet.setColumnWidth(8,300);\n      sheet.setColumnWidth(9,400);\n    }\n    var formId = e.parameter.formId || "0";\n    var formName = e.parameter.formName || "";\n    var date = e.parameter.date || "";\n    var rec = JSON.parse(decodeURIComponent(e.parameter.record || "{}"));\n    var checker = rec["f"+formId+"_checker"] || rec["f"+formId+"_recorder"] || rec["f"+formId+"_reporter"] || rec["f"+formId+"_author"] || rec["f"+formId+"_manager"] || "";\n    var ngItems = [];\n    var keys = Object.keys(rec);\n    var ngCount = 0; var okCount = 0;\n    var ngVals = ["異常","要改善","要対応","未完了","いいえ","あり","補充必要","固定必要","未実施","否認","S級絊急","S級","A級","虫害あり","範囲外","未撮影","交換必要","貸出中","未算定","要発注"];\n    var okVals = ["正常","良好","完了","はい","なし","撮影済","確認済","揃っている","実施","不要","可能","可","異常なし","範囲内","実施済","返却済","算定済","承認"];\n    for (var i = 0; i < keys.length; i++) {\n      var v = rec[keys[i]];\n      if (ngVals.indexOf(v) >= 0) { ngCount++; ngItems.push(keys[i].replace("f"+formId+"_","")+":"+v); }\n      else if (okVals.indexOf(v) >= 0) okCount++;\n    }\n    var lastRow2 = sheet.appendRow([new Date().toLocaleString("ja-JP"), date, Number(formId), formName, checker, okCount, ngCount, ngItems.join(" / "), JSON.stringify(rec)]);\n    var newRow = sheet.getLastRow();\n    if (ngCount > 0) sheet.getRange(newRow,1,1,9).setBackground("#fff3e0");\n    return ContentService.createTextOutput(JSON.stringify({status:"ok",form:formName,ng:ngCount})).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);\n  }\n}';
 
 // ===== SETTINGS =====
-var SETTINGS = {pin:'0000', scriptUrl:''};
+// ▼▼▼ ここにApps Script URLを貼り付けると全デバイスに自動配布されます ▼▼▼
+var DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxW_u7LJiRTJTXH2vcAm5Cdn8Uz9E-eeqKKpK_q_pJd-tpoeHZZPuBuPiFkfB8z_aCo/exec';
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+var SETTINGS = {pin:'0000', scriptUrl: DEFAULT_SCRIPT_URL};
 try {
   var _ss = localStorage.getItem('tenkai_settings');
   if (_ss) { var _sp = JSON.parse(_ss); if (_sp) SETTINGS = _sp; }
   if (!SETTINGS.pin) SETTINGS.pin = '0000';
+  // localStorageにURLが未設定の場合はDEFAULT_SCRIPT_URLを使用
+  if (!SETTINGS.scriptUrl && DEFAULT_SCRIPT_URL) SETTINGS.scriptUrl = DEFAULT_SCRIPT_URL;
 } catch(e) {}
 
 function saveSettings() {
@@ -448,15 +459,19 @@ function renderSheetsPanel(rows) {
   var el = document.getElementById('sheets-panel');
   var st = document.getElementById('sheets-status');
   if (!el) return;
-  if (rows.length === 0) {
-    if (st) st.innerHTML = '<span style="color:var(--muted)">📭 Sheetsに記録がありません</span>';
+  // 無効行（formIdがnull/0/1〜16以外）を除外
+  var validRows = rows.filter(function(r) {
+    return r.formId && r.formId >= 1 && r.formId <= TOTAL_FORMS;
+  });
+  if (validRows.length === 0) {
+    if (st) st.innerHTML = '<span style="color:var(--muted)">📭 Sheetsに有効な記録がありません</span>';
     el.innerHTML = ''; return;
   }
-  if (st) st.innerHTML = '<span style="color:var(--green)">✅ '+rows.length+'件を読み込みました（全デバイス合計）</span>';
+  if (st) st.innerHTML = '<span style="color:var(--green)">✅ '+validRows.length+'件を読み込みました（全デバイス合計）</span>';
   // 日付×様式でグループ化
   var byDate = {};
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i]; var dk = r.date || '不明';
+  for (var i = 0; i < validRows.length; i++) {
+    var r = validRows[i]; var dk = r.date || '不明';
     if (!byDate[dk]) byDate[dk] = [];
     byDate[dk].push(r);
   }
